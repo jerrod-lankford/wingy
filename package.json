@@ -1,0 +1,15 @@
+{
+  "name": "wingy",
+  "version": "1.0.0",
+  "description": "Wing ordering robot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jlankford",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "googleapis": "^39.2.0"
+  }
+}
