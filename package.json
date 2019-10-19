@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "chalk": "^2.4.2",
-    "googleapis": "^39.2.0"
+    "googleapis": "^39.2.0",
+    "puppeteer": "^1.20.0"
   }
 }

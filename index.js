@@ -2,6 +2,8 @@ const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
 const utils = require('./utils.js');
+const paymentUtils = require('./payment-utils.js');
+const orderUtils = require('./order-utils.js');
 const chalk = require('chalk');
 
 // If modifying these scopes, delete token.json.
@@ -77,7 +79,7 @@ function consumeResults(auth) {
   sheets.spreadsheets.values.get({
     spreadsheetId: '1WH7rF44Z0-swAqMeyQqamKBWATIrCCk_ml9XyN8-7sU',
     range: 'Form Responses 1!A2:K',
-  }, (err, res) => {
+  }, async (err, res) => {
     if (err) return console.log('The API returned an error: ' + err);
     const rows = res.data.values;
     const everyone = [];
@@ -92,14 +94,7 @@ function consumeResults(auth) {
     console.log(chalk.bgRed('Orders'));
     console.table(everyone);
 
-    const payments = utils.generatePayment(everyone);
-    console.log(chalk.bgRed('Payments'));
-    console.table(payments);
-
-    let total = 0;
-    payments.forEach(p => total+= p.total);
-    console.log(chalk.bgRed(`total: ${total}`));
-
-    console.log('Paypal: jllankfo@ncsu.edu - Venmo: jerrod-lankford');
+    await orderUtils.order(everyone);
+    paymentUtils.printPayment(everyone);
   });
 }
