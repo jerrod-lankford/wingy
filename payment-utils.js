@@ -1,8 +1,10 @@
 const chalk = require('chalk');
+const utils = require('./utils.js');
 
-const FRY_COST = 3.99; // TODO hardcoded for now
+const SMALL_FRY = 2.99;
+const LARGE_FRY = 3.99;
 const TAX_RATE = 0.082357385719683; // TODO CHECK
-const TIP_PERCENT = .15;
+const TIP_PERCENT = .15; // Hardcoded 15% tip, also hardcoded in order utils
 const DELIVERY = 1;
 
 module.exports.printPayment = function(everyone) {
@@ -21,7 +23,7 @@ module.exports.printPayment = function(everyone) {
 function generatePayment(everyone) {
     return everyone.map(person => {
         const { name, price } = person;
-        const fries = calcFries(everyone, person);
+        const fries = calcFries(everyone, person).pp;
         const ttd = calcTTD(everyone);
         const total = price + fries + ttd;
 
@@ -35,25 +37,28 @@ function generatePayment(everyone) {
     });
 };
 
+// Returns both the total and per person values
 function calcFries(everyone, person) {
-    if (person.fries === 'Yes') {
-        const fryPeeps = everyone.reduce((accum, curr) => {
-            if (curr.fries === 'Yes') {
-                accum++;
-            }
-            return accum;
-        }, 0);
-        return +(FRY_COST / fryPeeps).toFixed(2);
+    const fryPeeps = everyone.reduce((accum, curr) => {
+        return curr.fries === 'Yes' ? ++accum : accum;
+    }, 0);
+    const fries = utils.fryCalc(fryPeeps);
+    const total =  ((fries.small * SMALL_FRY) + (fries.large * LARGE_FRY));
+    let pp = 0;
+
+    if (person && person.fries === 'Yes') {
+        pp = total / fryPeeps;
     }
 
-    return 0;
+    return {total, pp};
 }
 
 function calcTTD(everyone) {
+    const fryCost = calcFries(everyone).total;
     const preTaxTotal = everyone.reduce((accum, curr) => {
         accum += curr.price;
         return accum;
-    }, FRY_COST);
+    }, fryCost);
     const ttd = ((preTaxTotal * TAX_RATE) + (preTaxTotal * TIP_PERCENT) + DELIVERY) / everyone.length;
     return +ttd.toFixed(2);
 }

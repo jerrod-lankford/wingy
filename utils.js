@@ -26,6 +26,25 @@ module.exports.parseRow = function(row) {
     }
 };
 
+// 2 people to a small, 3 to a large
+module.exports.fryCalc = function(numPeople) {
+    let large = Math.floor(numPeople/3);
+    let r = numPeople % 3;
+    let small = 0;
+
+    if (r === 1) {
+        large !== 0 ? large-- : large;
+        small += numPeople === 1 ? 1 : 2;
+    } else if (r===2) {
+        small++;
+    }
+
+    return {
+        large,
+        small
+    }
+}
+
 function parseSauce(row) {
     const sauces = row[9] ? row[9].split(', ') : row[10].split(', ');
     return sauces.map(sauce =>  sauce.replace('(Dry)', '').trim());

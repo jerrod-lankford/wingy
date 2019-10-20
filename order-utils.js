@@ -1,9 +1,10 @@
 
 const puppeteer = require('puppeteer');
-
-const NO_DRESSING = 'No Dressing';
+const utils = require('./utils.js');
 
 const MENU = 'https://wingsoverraleigh.foodtecsolutions.com/menu';
+
+const NO_DRESSING = 'No Dressing';
 
 const TYPE_SELECTORS = {
     'Boneless': 'div#Boneless\\+Wings',
@@ -20,11 +21,22 @@ const SIZE_SELECTORS = {
     'Puddle Jumper': 'div#CSSPuddle_JumperWings h5',
     'F-16': 'div#CSSF-16Wings h5',
     'B-1 Bomber': 'div#CSSB-1_BomberWings h5',
+    'Small Waffle Fries': 'div#CSSWaffle_FriesAppetizer .menuPrice:nth-child(1) a',
+    'Large Waffle Fries': 'div#CSSWaffle_FriesAppetizer .menuPrice:nth-child(2) a'
 };
+
+// We treat cajun and mesquite the same, will randomize between the two
+const FRY_RUBS = ['Cajun/Mesquite', 'Garlic Parm', 'Ranch'];
 
 const ITEM_SELECTOR = "span[title='{0}']";
 
 const DONE_SELECTOR = 'button.item-edit-done';
+
+const ADD_TIP_SELECTOR = '#add-tip-link';
+
+const TIP_BUTTON_SELECTOR = '#calculator-button-15'; // Hardcoded 15% tip, also hardcoded in payment utils
+
+const TIP_DONE_BUTTON_SELECTOR = '.tip-calculator-dialog .done-button';
 
 module.exports.order = async function(everyone) {
 
@@ -39,10 +51,15 @@ module.exports.order = async function(everyone) {
         await order.done();
     }
 
-    // TODO Automatic fry ordering?
-    // type();
-    // fries();
-    // done();
+    const fryOrders = createFryOrders(everyone, page);
+    for (const fryOrder of fryOrders) {
+        await fryOrder.type();
+        await fryOrder.size();
+        await fryOrder.sauces();
+        await fryOrder.done();
+    }
+
+    await addTip(page);
 }
 
 /* Helper functions */
@@ -57,6 +74,60 @@ async function start() {
 async function waitThenClick(page, selector) {
     await page.waitForSelector(selector);
     await page.click(selector);
+}
+
+function createFryOrders(everyone, page) {
+    // Number of people that want frys
+    const fryPeeps = everyone.reduce((accum, curr) => {
+        return curr.fries === 'Yes' ? ++accum : accum;
+    }, 0);
+    const fries = utils.fryCalc(fryPeeps);
+    const orders = [];
+    const rubs = [];
+
+    // Build small fry orders
+    for (let i=0; i < fries.small;i++) {
+        orders.push(new Order({ type: 'Side Orders', order: 'Small Waffle Fries', sauces: [getSauce(rubs)] }, page));
+    }
+
+    // Build large fry orders
+    for (let i=0; i < fries.large;i++) {
+        orders.push(new Order({ type: 'Side Orders', order: 'Large Waffle Fries', sauces: [getSauce(rubs)] }, page));
+    }
+    return orders;
+}
+
+/**
+* Basically if we have less than three rubs just randomize one
+* Otherwise it doesn't really matter at that point
+* Will update preivousRubs array for you 
+*/
+function getSauce(previousRubs) {
+    let choices;
+    if (previousRubs.length < 3) {
+       choices = FRY_RUBS.filter(value => {
+            return previousRubs.indexOf(value) === -1;
+        });
+    } else {
+        choices = [].concat(FRY_RUBS);
+    }
+
+    const index = Math.floor(Math.random() * choices.length);
+    let choice = choices[index];
+
+    // Break up mesquite and cajun
+    if (choice.includes('/')) {
+        choice = choice.split('/')[Math.floor(Math.random()*2)];
+    }
+
+    previousRubs.push(choice);
+    return choice;
+}
+
+async function addTip(page) {
+    await waitThenClick(page, ADD_TIP_SELECTOR);
+    await waitThenClick(page, TIP_BUTTON_SELECTOR);
+    await waitThenClick(page, TIP_DONE_BUTTON_SELECTOR);
 }
 /* end helper functions */
 
