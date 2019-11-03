@@ -79,7 +79,13 @@ function getNewToken(oAuth2Client, callback) {
 async function consumeResults(auth) {
   // Slackbot client
   const bot = new ChatBot();
-  await bot.postOrderForm();
+
+  // If we have to bail this allows us to pass in a thread id to resume ordering in the same slack thrad
+  if (process.env.THREAD_TS) {
+    bot.setThreadTs(process.env.THREAD_TS);
+  } else {
+    await bot.postOrderForm();
+  }
 
   // Pause until everyone is done ordering
   readlineSync.question('Please press enter when all orders are in\n');
@@ -90,33 +96,45 @@ async function consumeResults(auth) {
     range: 'Form Responses 1!A2:K',
   }, async (err, res) => {
     if (err) return console.log('The API returned an error: ' + err);
-    const rows = res.data.values;
-    const everyone = [];
-    if (rows.length) {
-      rows.forEach((row) => {
-        everyone.push(utils.parseRow(row));
-      });
-    } else {
-      console.log('No data found.');
-    }
+    await main(res, bot);
+  });
+}
 
-    // Log Orders
-    console.log(chalk.bgRed('Orders'));
-    console.table(everyone);
-
-    // Order
-    const page = await orderUtils.order(everyone);
-    paymentUtils.printPayment(everyone);
-
-    // Post slack updates
-    bot.waitForOrderPage(page, async () => {
-      await bot.postReceipt(page);
-
-      await bot.postPaymentInfo();
-
-      await bot.startOrderMonitoring(page);
-
-      console.log("Finished, you can close me now");
+async function main(res, bot) {
+  const rows = res.data.values;
+  const everyone = [];
+  if (rows.length) {
+    rows.forEach((row) => {
+      everyone.push(utils.parseRow(row));
     });
+  } else {
+    console.log('No data found.');
+  }
+
+  // Log Orders
+  console.log(chalk.bgRed('Orders'));
+  console.table(everyone);
+
+  // Order
+  const page = await orderUtils.order(everyone);
+  const payments = paymentUtils.generatePayment(everyone);
+
+  // Print total for sanity checking
+  console.log(chalk.bgRed('Payments'));
+  console.table(payments);
+  let total = 0;
+  payments.forEach(p => total+= p.total);
+  console.log(chalk.bgRed(`total: ${total}`));
+
+  // Post slack updates
+  bot.waitForOrderPage(page, async () => {
+    await bot.postReceipt(page);
+
+    // Generate html and make slack post
+    await bot.postPaymentInfo(page, payments);
+
+    await bot.postAcceptedPayments();
+
+    await bot.startOrderMonitoring(page);
   });
 }
