@@ -3,11 +3,10 @@ const {google} = require('googleapis');
 const utils = require('./utils.js');
 const paymentUtils = require('./payment-utils.js');
 const orderUtils = require('./order-utils.js');
+const { ChatBot } = require('./chat-bot.js');
 const chalk = require('chalk');
-const readline = require('readline').createInterface({
-  input: process.stdin,
-  output: process.stdout
-})
+const readlineSync = require('readline-sync');
+const readline = require('readline');
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
@@ -77,7 +76,14 @@ function getNewToken(oAuth2Client, callback) {
  * Open the wing response spreadsheet and parse the results into objects
  * https://docs.google.com/spreadsheets/d/1WH7rF44Z0-swAqMeyQqamKBWATIrCCk_ml9XyN8-7sU/edit#gid=1558653135
  */
-function consumeResults(auth) {
+async function consumeResults(auth) {
+  // Slackbot client
+  const bot = new ChatBot();
+  await bot.postOrderForm();
+
+  // Pause until everyone is done ordering
+  readlineSync.question('Please press enter when all orders are in\n');
+
   const sheets = google.sheets({version: 'v4', auth});
   sheets.spreadsheets.values.get({
     spreadsheetId: '1WH7rF44Z0-swAqMeyQqamKBWATIrCCk_ml9XyN8-7sU',
@@ -94,15 +100,23 @@ function consumeResults(auth) {
       console.log('No data found.');
     }
 
+    // Log Orders
     console.log(chalk.bgRed('Orders'));
     console.table(everyone);
 
-    await orderUtils.order(everyone);
+    // Order
+    const page = await orderUtils.order(everyone);
     paymentUtils.printPayment(everyone);
 
-    readline.question(`Please press enter when on the order status page`, (name) => {
-      console.log(`Starting order status updates`);
-      readline.close();
+    // Post slack updates
+    bot.waitForOrderPage(page, async () => {
+      await bot.postReceipt(page);
+
+      await bot.postPaymentInfo();
+
+      await bot.startOrderMonitoring(page);
+
+      console.log("Finished, you can close me now");
     });
   });
 }

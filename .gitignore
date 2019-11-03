@@ -1,4 +1,5 @@
 credentials.json
 secret.json
 token.json
+receipt.png
 node_modules/**

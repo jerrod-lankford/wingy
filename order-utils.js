@@ -60,6 +60,8 @@ module.exports.order = async function(everyone) {
     }
 
     await addTip(page);
+
+    return page;
 }
 
 /* Helper functions */
