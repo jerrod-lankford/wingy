@@ -12,7 +12,7 @@ const ORDER_FORM = 'https://forms.gle/ouChfMnAXKvnz8MP9';
 const ORDER_TRACKER_FRAGMENT = '/orderTracker?';
 const TOTAL_SELECTOR = '#total';
 const PAYMENTS_SELECTOR = '#payments';
-const CHANNEL_NAME = 'test-jerrod';
+const CHANNEL_NAME = 'lists-raleigh';
 
 module.exports.ChatBot = class ChatBot {
     constructor() {
