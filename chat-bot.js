@@ -110,7 +110,7 @@ module.exports.ChatBot = class ChatBot {
     }
 
     async postAcceptedPayments() {
-       await postMessage(this.web, 'Payment methods: Paypal - jllankfo@ncsu.edu or Venmo - jerrod-lankford', this.thread_ts);
+       await postMessage(this.web, 'Payment methods: Paypal - paypal.me/JerrodLankford or Venmo - jerrod-lankford', this.thread_ts);
     }
 
     waitForOrderPage(page, callback) {
