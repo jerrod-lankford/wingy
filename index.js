@@ -1,10 +1,13 @@
 const fs = require('fs');
-const readline = require('readline');
 const {google} = require('googleapis');
 const utils = require('./utils.js');
 const paymentUtils = require('./payment-utils.js');
 const orderUtils = require('./order-utils.js');
 const chalk = require('chalk');
+const readline = require('readline').createInterface({
+  input: process.stdin,
+  output: process.stdout
+})
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
@@ -96,5 +99,10 @@ function consumeResults(auth) {
 
     await orderUtils.order(everyone);
     paymentUtils.printPayment(everyone);
+
+    readline.question(`Please press enter when on the order status page`, (name) => {
+      console.log(`Starting order status updates`);
+      readline.close();
+    });
   });
 }
