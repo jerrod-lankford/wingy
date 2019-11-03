@@ -152,7 +152,7 @@ class Order {
 
     async sauces() {
         for (const sauce of this.person.sauces) {
-            const selector = ITEM_SELECTOR.replace('{0}', sauce);
+            const selector = ITEM_SELECTOR.replace('{0}', sauce.replace("'", "\\'"));
             await waitThenClick(this.page, selector);
         }
     }
