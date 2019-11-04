@@ -24,7 +24,7 @@ module.exports.ChatBot = class ChatBot {
     }
 
     async postOrderForm() {
-        const result = await postMessage(this.web, `Order up: ${ORDER_FORM}`);
+        const result = await postMessage(this.web, `Lunch thread: ${ORDER_FORM}`);
         this.thread_ts = result.ts;
         console.log(chalk.bgMagenta(`Thread id for recovery: ${this.thread_ts}`));
     }
