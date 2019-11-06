@@ -135,6 +135,8 @@ async function main(res, bot) {
 
     await bot.postAcceptedPayments();
 
+    await bot.postOrderPreperation(page);
+
     await bot.startOrderMonitoring(page);
   });
 }

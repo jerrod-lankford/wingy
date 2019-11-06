@@ -10,6 +10,8 @@ const RECEIPT_SELECTOR = '#order-tracker-order-slip';
 const ESTIMATED_DELIVERY_SELECTOR = "//*[contains(text(),'Approximately')]";
 const ORDER_FORM = 'https://forms.gle/ouChfMnAXKvnz8MP9';
 const ORDER_TRACKER_FRAGMENT = '/orderTracker?';
+const ORDER_TRACKER_CONTAINER_SELECTOR = '#order-tracker-container'
+const ORDER_PREPERATION_SELECTOR = '#order-tracker-overlay';
 const TOTAL_SELECTOR = '#total';
 const PAYMENTS_SELECTOR = '#payments';
 const CHANNEL_NAME = 'lists-raleigh';
@@ -112,6 +114,18 @@ module.exports.ChatBot = class ChatBot {
 
     async postAcceptedPayments() {
        await postMessage(this.web, 'Payment methods: Paypal - paypal.me/JerrodLankford or Venmo - jerrod-lankford', this.thread_ts);
+    }
+
+    async postOrderPreperation() {
+        await page.waitForSelector(ORDER_TRACKER_CONTAINER_SELECTOR);
+        const prepTime = await page.evaluate((selector) => {
+            const orderPrep = document.querySelector(selector);
+            return orderPrep && orderPrep.textContent;
+        }, ORDER_PREPERATION_SELECTOR);
+
+        if (prepTime) {
+            await postMessage(this.web, prepTime, this.thread_ts);
+        }
     }
 
     waitForOrderPage(page, callback) {
