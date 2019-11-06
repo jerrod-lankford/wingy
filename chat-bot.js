@@ -30,6 +30,7 @@ module.exports.ChatBot = class ChatBot {
     }
 
     async startOrderMonitoring(page) {
+        console.log('Starting order monitoring...');
         let lastKnownStatus, lastKnownEstimatedDelivery;
         const interval = setInterval(async () => {
             const status = await getStatus(page);
