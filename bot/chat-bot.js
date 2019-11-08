@@ -12,6 +12,8 @@ const RECEIPT_SELECTOR = '#order-tracker-order-slip';
 const ESTIMATED_DELIVERY_SELECTOR = "//*[contains(text(),'Approximately')]";
 const ORDER_TRACKER_FRAGMENT = '/orderTracker?';
 const CHANNEL_NAME = 'test-jerrod';
+const ORDER_TRACKER_CONTAINER_SELECTOR = '#order-tracker-container'
+const ORDER_PREPERATION_SELECTOR = '#order-tracker-overlay';
 
 module.exports.ChatBot = class ChatBot {
     constructor() {
@@ -36,6 +38,7 @@ module.exports.ChatBot = class ChatBot {
 
     async startOrderMonitoring(page) {
         const { thread_ts } = this;
+        console.log('Starting order monitoring...');
         let lastKnownStatus, lastKnownEstimatedDelivery;
         const interval = setInterval(async () => {
             const status = await getStatus(page);
@@ -84,6 +87,19 @@ module.exports.ChatBot = class ChatBot {
                 `Accepted Payment methods: :paypal: paypal.me/JerrodLankford or :venmo: jerrod-lankford`;
             await postMessage(this.web, {text, channel});
         });
+    }
+
+    async postOrderPreperation() {
+        const { thread_ts } = this;
+        await page.waitForSelector(ORDER_TRACKER_CONTAINER_SELECTOR);
+        const text = await page.evaluate((selector) => {
+            const orderPrep = document.querySelector(selector);
+            return orderPrep && orderPrep.textContent;
+        }, ORDER_PREPERATION_SELECTOR);
+
+        if (text) {
+            await postMessage(this.web, {text, thread_ts});
+        }
     }
 
     waitForOrderPage(page, callback) {

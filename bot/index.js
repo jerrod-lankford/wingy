@@ -48,6 +48,8 @@ async function main() {
 
     await bot.postReceipt(page);
 
+    await bot.postOrderPreperation(page);
+
     await bot.postPaymentInfo(page, payments);
 
     await bot.startOrderMonitoring(page);
