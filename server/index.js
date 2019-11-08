@@ -60,7 +60,8 @@ function lookupOrCreateOrder(user) {
         return order;
     }
 
-    order = {name: user.username, user_id: user.id};
+    const date = new Date();
+    order = {name: user.username, user_id: user.id, time: date.toLocaleString()};
     orders.push(order);
     return order;
 }

@@ -5,12 +5,12 @@ const { createReadStream } = require('fs');
 const { slackBlocks } = require('../common/slack-blocks.js');
 const chalk = require('chalk');
 
+const CHANNEL_NAME = 'test-jerrod';
 const CHECK_INTERVAL_MS = 15 * 1000;
 const ORDER_STATUS_SELECTOR = '#order-tracker-status-text';
 const RECEIPT_SELECTOR = '#order-tracker-order-slip';
 const ESTIMATED_DELIVERY_SELECTOR = "//*[contains(text(),'Approximately')]";
 const ORDER_TRACKER_FRAGMENT = '/orderTracker?';
-const CHANNEL_NAME = 'test-jerrod';
 const ORDER_TRACKER_CONTAINER_SELECTOR = '#order-tracker-container'
 const ORDER_PREPERATION_SELECTOR = '#order-tracker-overlay';
 
