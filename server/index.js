@@ -106,6 +106,7 @@ function validateOrder(order) {
 
     if (order.completed_before) {
         text = `:white_check_mark: Order successfully updated!`;
+        order.complete = true;
     } else {
         text = `:white_check_mark: Order successfully placed! If you change your mind you can order again to update your current order.`;
         order.complete = true;
