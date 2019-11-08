@@ -1,7 +1,6 @@
 const axios = require('axios');
 
-// TODO Change to heroku
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'https://wingy.herokuapp.com';
 const ORDER_URL = `${BASE_URL}/api/orders`;
 const CLEAR_ORDER_URL = `${BASE_URL}/api/clear`;
 
@@ -38,18 +37,5 @@ module.exports.clearOrders = async function() {
     if (response.status !== 200) {
         throw new Error(`Error clearing orders: ${response.status}`);
     }
-}
-
-function parseSauce(row) {
-    const sauces = row[9] ? row[9].split(', ') : row[10].split(', ');
-    return sauces.map(sauce =>  sauce.replace('(Dry)', '').trim());
-}
-
-function parseOrder(priceAndSize) {
-    // Strip the price off
-    const split = priceAndSize.split('$');
-    const order = split[0].substr(0,split[0].length-3);
-
-    // Strip the poundage off, if it exists
-    return order.split('(')[0].trim();
+    return response;
 }

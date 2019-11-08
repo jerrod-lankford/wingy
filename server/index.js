@@ -17,7 +17,6 @@ app.post('/slack', urlencodedParser, (req, res) =>{
 
 app.get('/api/orders', (req, res) => {
     res.json(orders);
-    console.table(orders);
 });
 
 app.post('/api/clear', (req, res) => {

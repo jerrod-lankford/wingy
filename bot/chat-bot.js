@@ -7,7 +7,6 @@ const chalk = require('chalk');
 
 const CHECK_INTERVAL_MS = 15 * 1000;
 const ORDER_STATUS_SELECTOR = '#order-tracker-status-text';
-const ORDER_TREE_NAME_SELECTOR = '.order-tree-name';
 const RECEIPT_SELECTOR = '#order-tracker-order-slip';
 const ESTIMATED_DELIVERY_SELECTOR = "//*[contains(text(),'Approximately')]";
 const ORDER_TRACKER_FRAGMENT = '/orderTracker?';
@@ -67,7 +66,11 @@ module.exports.ChatBot = class ChatBot {
     }
 
     async postReceipt(page) {
-        await page.waitForSelector(ORDER_TREE_NAME_SELECTOR);
+        await page.waitForSelector(RECEIPT_SELECTOR);
+
+        // There seems to be a glitch that causes the receipt to be blank
+        // so lets wait a sec before taking the screenshot after finding the dom node
+        await timeout(1000);
         await screenshotDOMElement(page, RECEIPT_SELECTOR, 'receipt.png');
 
         await this.web.files.upload({
@@ -89,7 +92,7 @@ module.exports.ChatBot = class ChatBot {
         });
     }
 
-    async postOrderPreperation() {
+    async postOrderPreperation(page) {
         const { thread_ts } = this;
         await page.waitForSelector(ORDER_TRACKER_CONTAINER_SELECTOR);
         const text = await page.evaluate((selector) => {
@@ -153,6 +156,10 @@ async function screenshotDOMElement(page, selector, name) {
         height: rect.height
       }
     });
+}
+
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function format(value) {
