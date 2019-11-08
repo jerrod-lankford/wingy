@@ -89,12 +89,12 @@ function createFryOrders(everyone, page) {
 
     // Build small fry orders
     for (let i=0; i < fries.small;i++) {
-        orders.push(new Order({ type: 'Side Orders', order: 'Small Waffle Fries', sauces: [getSauce(rubs)] }, page));
+        orders.push(new Order({ type: 'Side Orders', size: 'Small Waffle Fries', sauces: [getSauce(rubs)] }, page));
     }
 
     // Build large fry orders
     for (let i=0; i < fries.large;i++) {
-        orders.push(new Order({ type: 'Side Orders', order: 'Large Waffle Fries', sauces: [getSauce(rubs)] }, page));
+        orders.push(new Order({ type: 'Side Orders', size: 'Large Waffle Fries', sauces: [getSauce(rubs)] }, page));
     }
     return orders;
 }
@@ -146,7 +146,7 @@ class Order {
     }
 
     async size() {
-        const selector = SIZE_SELECTORS[this.person.order];
+        const selector = SIZE_SELECTORS[this.person.size];
         await waitThenClick(this.page, selector);
     }
 

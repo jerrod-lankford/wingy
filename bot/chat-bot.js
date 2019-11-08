@@ -2,17 +2,16 @@
 const secret = require('./secret.json');
 const { WebClient } = require('@slack/web-api');
 const { createReadStream } = require('fs');
+const { slackBlocks } = require('../common/slack-blocks.js');
 const chalk = require('chalk');
 
 const CHECK_INTERVAL_MS = 15 * 1000;
 const ORDER_STATUS_SELECTOR = '#order-tracker-status-text';
+const ORDER_TREE_NAME_SELECTOR = '.order-tree-name';
 const RECEIPT_SELECTOR = '#order-tracker-order-slip';
 const ESTIMATED_DELIVERY_SELECTOR = "//*[contains(text(),'Approximately')]";
-const ORDER_FORM = 'https://forms.gle/ouChfMnAXKvnz8MP9';
 const ORDER_TRACKER_FRAGMENT = '/orderTracker?';
-const TOTAL_SELECTOR = '#total';
-const PAYMENTS_SELECTOR = '#payments';
-const CHANNEL_NAME = 'lists-raleigh';
+const CHANNEL_NAME = 'test-jerrod';
 
 module.exports.ChatBot = class ChatBot {
     constructor() {
@@ -24,12 +23,19 @@ module.exports.ChatBot = class ChatBot {
     }
 
     async postOrderForm() {
-        const result = await postMessage(this.web, `Lunch thread: ${ORDER_FORM}`);
+        const result = await postMessage(this.web, {text: 'Order up! Lunch thread...', blocks: slackBlocks});
         this.thread_ts = result.ts;
         console.log(chalk.bgMagenta(`Thread id for recovery: ${this.thread_ts}`));
     }
 
+    async atMentionEveryone(everyone) {
+        const { thread_ts } = this;
+        const text = everyone.map(e => `@${e.name}`).join(' ');
+        await postMessage(this.web, {text, thread_ts, link_names: true});
+    }
+
     async startOrderMonitoring(page) {
+        const { thread_ts } = this;
         let lastKnownStatus, lastKnownEstimatedDelivery;
         const interval = setInterval(async () => {
             const status = await getStatus(page);
@@ -37,13 +43,13 @@ module.exports.ChatBot = class ChatBot {
 
             // Post estimated delivery
             if (lastKnownEstimatedDelivery !== estimatedDelivery) {
-                await postMessage(this.web, `Esimated delivery: ${estimatedDelivery}`, this.thread_ts);
+                await postMessage(this.web, {text: `Esimated delivery: ${estimatedDelivery}`, thread_ts});
                 lastKnownEstimatedDelivery = estimatedDelivery;
             }
 
             // Post delivery status
             if (status !== lastKnownStatus) {
-                await postMessage(this.web, `Wing status: ${status}`, this.thread_ts);
+                await postMessage(this.web, {text: `Wing status: ${status}`, thread_ts});
                 lastKnownStatus = status;
             }
     
@@ -58,7 +64,7 @@ module.exports.ChatBot = class ChatBot {
     }
 
     async postReceipt(page) {
-        await page.waitForSelector(RECEIPT_SELECTOR);
+        await page.waitForSelector(ORDER_TREE_NAME_SELECTOR);
         await screenshotDOMElement(page, RECEIPT_SELECTOR, 'receipt.png');
 
         await this.web.files.upload({
@@ -70,47 +76,14 @@ module.exports.ChatBot = class ChatBot {
     }
 
     async postPaymentInfo(page, payments) {
-        await page.goto(`file://${__dirname}/payment.html`);
-
-        // Build html table
-        let rows = '';
-        let allTotal = 0;
-        payments.forEach(p => {
-            rows+= `
-                <tr>
-                    <td>${p.name}</td>
-                    <td>${format(p.price)}</td>
-                    <td>${format(p.fries)}</td>
-                    <td>${format(p.ttd)}</td>
-                    <td>${format(p.total)}</td>
-                </tr>
-            `;
-            allTotal += p.total;
+        payments.forEach(async p => {
+            const response = await this.web.im.open({ user: p.user_id});
+            const channel = response.channel.id;
+            const text = `Hi ${p.name}, you owe *${format(p.total)}*.\n` + 
+                `Cost Breakdown - Price: ${format(p.price)} + Fries: ${format(p.fries)} + Tax/Tip/Delivery: ${format(p.ttd)}\n` +
+                `Accepted Payment methods: :paypal: paypal.me/JerrodLankford or :venmo: jerrod-lankford`;
+            await postMessage(this.web, {text, channel});
         });
-
-        allTotal = format(allTotal);
-
-        // Inject rows into dom
-        await page.evaluate((rows, TOTAL_SELECTOR, allTotal) => {
-            const dom = document.querySelector('tbody');
-            const total = document.querySelector(TOTAL_SELECTOR);
-            dom.innerHTML = rows;
-            total.innerHTML = allTotal;
-         }, rows, TOTAL_SELECTOR, allTotal);
-
-         // Screnshot and upload to slack
-         await screenshotDOMElement(page, PAYMENTS_SELECTOR, 'payments.png');
-         await page.goBack();
-         await this.web.files.upload({
-            filename: 'payments',
-            file: createReadStream('./payments.png'),
-            channels: CHANNEL_NAME,
-            thread_ts: this.thread_ts
-        });
-    }
-
-    async postAcceptedPayments() {
-       await postMessage(this.web, 'Payment methods: Paypal - paypal.me/JerrodLankford or Venmo - jerrod-lankford', this.thread_ts);
     }
 
     waitForOrderPage(page, callback) {
@@ -139,12 +112,13 @@ async function getEstimatedDelivery(page) {
     return '';
 }
 
-async function postMessage(web, text, thread_ts) {
-    return await web.chat.postMessage({
-        channel: CHANNEL_NAME,
-        text,
-        thread_ts
-    });
+async function postMessage(web, additionalParams) {
+    let params = {
+        channel: CHANNEL_NAME
+    };
+
+    params = Object.assign(params, additionalParams);
+    return await web.chat.postMessage(params);
 }
 
 async function screenshotDOMElement(page, selector, name) {

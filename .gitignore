@@ -1,6 +1,3 @@
-credentials.json
 secret.json
-token.json
 receipt.png
-payments.png
 node_modules/**

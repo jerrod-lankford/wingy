@@ -8,13 +8,14 @@ const DELIVERY = 1;
 
 module.exports.generatePayment = function(everyone) {
     return everyone.map(person => {
-        const { name, price } = person;
+        const { name, price, user_id } = person;
         const fries = calcFries(everyone, person).pp;
         const ttd = calcTTD(everyone);
         const total = price + fries + ttd;
 
         return {
             name,
+            user_id,
             price,
             fries,
             ttd,
