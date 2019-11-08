@@ -91,17 +91,22 @@ function validateOrder(order) {
         return `:x: Please fill in required fields: Order, sauces, and dressing.`
     }
 
+    let text;
+
     if ((order.size === 'DC-3' || order.size === 'Paper Airplane') && order.sauces.length > 1) {
-        return `:x: With ${order.size} you are only allowed to have 1 sauce.`;
+        text = `:x: With ${order.size} you are only allowed to have 1 sauce.`;
     } else if ((order.size === 'DC-10' || order.size === 'Puddle Jumper') && order.sauces.length > 2) {
-        return `:x: With ${order.size} you are only allowed to have up to 2 sauces.`;
+        text = `:x: With ${order.size} you are only allowed to have up to 2 sauces.`;
     } else if ((order.size === 'F-16' || order.size === 'Skymaster') && order.sauces.length > 3) {
-        return `:x: With ${order.size} you are only allowed to have up to 3 sauces.`;
+        text = `:x: With ${order.size} you are only allowed to have up to 3 sauces.`;
     } else if ((order.size === 'B-1 Bomber' || order.size === 'Stratocruiser') && order.sauces.length > 4) {
-        return `:x: With ${order.size} you are only allowed to have up to 4 sauces.`;
+        text =`:x: With ${order.size} you are only allowed to have up to 4 sauces.`;
     }
 
-    let text;
+    if (text) {
+        order.complete = false;
+        return text;
+    }
 
     if (order.complete) {
         text = `:white_check_mark: Order successfully updated!`;
