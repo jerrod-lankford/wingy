@@ -32,6 +32,8 @@ function parseAction(payload) {
     const action = payload.actions[0];
     const order = lookupOrCreateOrder(user);
 
+    // In case it was complete before, any action will cause it to be uncompleted
+    order.complete = false;
     switch(action.action_id) {
         case ACTIONS.SIZE:
             Object.assign(order, parseSize(action));
@@ -91,28 +93,23 @@ function validateOrder(order) {
         return `:x: Please fill in required fields: Order, sauces, and dressing.`
     }
 
-    let text;
 
     if ((order.size === 'DC-3' || order.size === 'Paper Airplane') && order.sauces.length > 1) {
-        text = `:x: With ${order.size} you are only allowed to have 1 sauce.`;
+        return `:x: With ${order.size} you are only allowed to have 1 sauce.`;
     } else if ((order.size === 'DC-10' || order.size === 'Puddle Jumper') && order.sauces.length > 2) {
-        text = `:x: With ${order.size} you are only allowed to have up to 2 sauces.`;
+        return `:x: With ${order.size} you are only allowed to have up to 2 sauces.`;
     } else if ((order.size === 'F-16' || order.size === 'Skymaster') && order.sauces.length > 3) {
-        text = `:x: With ${order.size} you are only allowed to have up to 3 sauces.`;
+        return `:x: With ${order.size} you are only allowed to have up to 3 sauces.`;
     } else if ((order.size === 'B-1 Bomber' || order.size === 'Stratocruiser') && order.sauces.length > 4) {
-        text =`:x: With ${order.size} you are only allowed to have up to 4 sauces.`;
+        return `:x: With ${order.size} you are only allowed to have up to 4 sauces.`;
     }
 
-    if (text) {
-        order.complete = false;
-        return text;
-    }
-
-    if (order.complete) {
+    if (order.completed_before) {
         text = `:white_check_mark: Order successfully updated!`;
     } else {
         text = `:white_check_mark: Order successfully placed! If you change your mind you can order again to update your current order.`;
         order.complete = true;
+        order.completed_before = true;
     }
 
     return text;
