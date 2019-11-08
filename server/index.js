@@ -93,9 +93,10 @@ function validateOrder(order) {
 
     if ((order.size === 'DC-3' || order.size === 'Paper Airplane') && order.sauces.length > 1) {
         return `:x: With ${order.size} you are only allowed to have 1 sauce.`;
+    } else if (order.sauces.length > 2) {
+        return `:x: With ${order.size} you are only allowed to have up to 2 sauces.`;
     }
 
-    
     let text;
 
     if (order.complete) {
