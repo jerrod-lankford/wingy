@@ -13,6 +13,7 @@ async function main() {
   if (process.env.THREAD_TS) {
     bot.setThreadTs(process.env.THREAD_TS);
   } else {
+    console.log("Clearing orders. This may take a while to wake up heroku dyno...");
     await utils.clearOrders();
     await bot.postOrderForm();
   }
