@@ -1,138 +1,139 @@
-const express = require('express');
-const request = require('request')
-const bodyParser = require('body-parser');
+const express = require("express");
+const request = require("request");
+const bodyParser = require("body-parser");
 const PORT = process.env.PORT || 3000;
-const { ACTIONS } = require('../common/slack-blocks.js');
+const { ACTIONS } = require("../common/slack-blocks.js");
 
 let orders = [];
 
 const app = express();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.post('/slack', urlencodedParser, (req, res) =>{
-    res.status(200).end();
-    var actionJSONPayload = JSON.parse(req.body.payload);
-    parseAction(actionJSONPayload);
+app.post("/slack", urlencodedParser, (req, res) => {
+  res.status(200).end();
+  var actionJSONPayload = JSON.parse(req.body.payload);
+  parseAction(actionJSONPayload);
 });
 
-app.get('/api/orders', (req, res) => {
-    res.json(orders);
+app.get("/api/orders", (req, res) => {
+  res.json(orders);
 });
 
-app.post('/api/clear', (req, res) => {
-    orders = [];
-    res.status(200).end();
+app.post("/api/clear", (req, res) => {
+  orders = [];
+  res.status(200).end();
 });
 
 console.log(`Listening on ${PORT}...`);
 app.listen(PORT);
 
 function parseAction(payload) {
-    const user = payload.user;
-    const action = payload.actions[0];
-    const order = lookupOrCreateOrder(user);
+  const user = payload.user;
+  const action = payload.actions[0];
+  const order = lookupOrCreateOrder(user);
 
-    // In case it was complete before, any action will cause it to be uncompleted
-    order.complete = false;
-    switch(action.action_id) {
-        case ACTIONS.SIZE:
-            Object.assign(order, parseSize(action));
-            break;
-        case ACTIONS.SAUCES:
-            order.sauces = parseMultiselect(action);
-            break;
-        case ACTIONS.DRESSING:
-            order.dressing = parseSelect(action);
-            break;
-        case ACTIONS.FRIES:
-            order.fries = parseSelect(action);
-            break;
-        case ACTIONS.ORDER:
-            const text = validateOrder(order);
-            sendMessage(payload.response_url, text);
-            break;
-        default:
-            console.log(`Unknown action id ${action}`);
-    }
+  // In case it was complete before, any action will cause it to be uncompleted
+  order.complete = false;
+  switch (action.action_id) {
+    case ACTIONS.SIZE:
+      Object.assign(order, parseSize(action));
+      break;
+    case ACTIONS.SAUCES:
+      order.sauces = parseMultiselect(action);
+      break;
+    case ACTIONS.DRESSING:
+      order.dressing = parseSelect(action);
+      break;
+    case ACTIONS.FRIES:
+      order.fries = parseSelect(action);
+      break;
+    case ACTIONS.ORDER:
+      const text = validateOrder(order);
+      sendMessage(payload.response_url, text);
+      break;
+    default:
+      console.log(`Unknown action id ${action}`);
+  }
 }
 
 function lookupOrCreateOrder(user) {
-    let order = orders.find(o => o.name === user.username);
-    if (order) {
-        return order;
-    }
-
-    const date = new Date();
-    order = {name: user.username, user_id: user.id, time: date.toLocaleString()};
-    orders.push(order);
+  let order = orders.find(o => o.name === user.username);
+  if (order) {
     return order;
+  }
+
+  const date = new Date();
+  order = {
+    name: user.username,
+    user_id: user.id,
+    time: date.toLocaleString()
+  };
+  orders.push(order);
+  return order;
 }
 
 // Form return values are Type:Size:Price eg (Boneless:DC-3:6.99)
 function parseSize(action) {
-    const values = action.selected_option.value.split(':');
-    return {
-        type: values[0],
-        size: values[1],
-        price: parseFloat(values[2])
-    };
+  const values = action.selected_option.value.split(":");
+  return {
+    type: values[0],
+    size: values[1],
+    price: parseFloat(values[2])
+  };
 }
 
 function parseSelect(action) {
-    return action.selected_option.value;
+  return action.selected_option.value;
 }
 
 function parseMultiselect(action) {
-    return action.selected_options.map(option => option.value);
+  return action.selected_options.map(option => option.value);
 }
 
 function validateOrder(order) {
+  if (!order || !order.type || !order.price || 
+    !order.size || !order.sauces || !order.dressing) {
+    return `:x: Please fill in required fields: Order, sauces, and dressing.`;
+  }
 
-    if (!order || !order.type || !order.price || !order.size ||
-        !order.sauces || !order.dressing) {
-        return `:x: Please fill in required fields: Order, sauces, and dressing.`
-    }
+  if ((order.size === "DC-3" || order.size === "Paper Airplane") && order.sauces.length > 1) {
+    return `:x: With ${order.size} you are only allowed to have 1 sauce.`;
+  } else if ((order.size === "DC-10" || order.size === "Puddle Jumper") && order.sauces.length > 2) {
+    return `:x: With ${order.size} you are only allowed to have up to 2 sauces.`;
+  } else if ((order.size === "F-16" || order.size === "Skymaster") && order.sauces.length > 3) {
+    return `:x: With ${order.size} you are only allowed to have up to 3 sauces.`;
+  } else if ((order.size === "B-1 Bomber" || order.size === "Stratocruiser") && order.sauces.length > 4) {
+    return `:x: With ${order.size} you are only allowed to have up to 4 sauces.`;
+  }
 
+  if (order.completed_before) {
+    text = `:white_check_mark: Order successfully updated!`;
+    order.complete = true;
+  } else {
+    text = `:white_check_mark: Order successfully placed! If you change your mind you can order again to update your current order.`;
+    order.complete = true;
+    order.completed_before = true;
+  }
 
-    if ((order.size === 'DC-3' || order.size === 'Paper Airplane') && order.sauces.length > 1) {
-        return `:x: With ${order.size} you are only allowed to have 1 sauce.`;
-    } else if ((order.size === 'DC-10' || order.size === 'Puddle Jumper') && order.sauces.length > 2) {
-        return `:x: With ${order.size} you are only allowed to have up to 2 sauces.`;
-    } else if ((order.size === 'F-16' || order.size === 'Skymaster') && order.sauces.length > 3) {
-        return `:x: With ${order.size} you are only allowed to have up to 3 sauces.`;
-    } else if ((order.size === 'B-1 Bomber' || order.size === 'Stratocruiser') && order.sauces.length > 4) {
-        return `:x: With ${order.size} you are only allowed to have up to 4 sauces.`;
-    }
-
-    if (order.completed_before) {
-        text = `:white_check_mark: Order successfully updated!`;
-        order.complete = true;
-    } else {
-        text = `:white_check_mark: Order successfully placed! If you change your mind you can order again to update your current order.`;
-        order.complete = true;
-        order.completed_before = true;
-    }
-
-    return text;
-
+  return text;
 }
 
-function sendMessage(responseURL, text){
-    var postOptions = {
-        uri: responseURL,
-        method: 'POST',
-        headers: {
-            'Content-type': 'application/json'
-        },
-        json: {
-            text,
-            replace_original: false,
-            response_type: "ephemeral"
-        }
+function sendMessage(responseURL, text) {
+  var postOptions = {
+    uri: responseURL,
+    method: "POST",
+    headers: {
+      "Content-type": "application/json"
+    },
+    json: {
+      text,
+      replace_original: false,
+      response_type: "ephemeral"
     }
-    request(postOptions, (error, response, body) => {
-        if (error){
-            // TODO
-        }
-    })
+  };
+  request(postOptions, (error, response, body) => {
+    if (error) {
+      // TODO
+    }
+  });
 }
