@@ -140,7 +140,7 @@ module.exports.slackBlocks = [
     block_id: "gl/M",
     text: {
       type: "mrkdwn",
-      text: "Choose sauces (Up to 2 except PA and DC-3)",
+      text: "Choose sauces",
       verbatim: false
     },
     accessory: {
