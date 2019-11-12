@@ -5,11 +5,13 @@ const MongoClient = require('mongodb').MongoClient;
 const { ACTIONS } = require("../common/slack-blocks.js");
 
 const url = process.env.MONGODB_URI || "mongodb://localhost:27017/wingy";
+const dbName = url.substr(url.lastIndexOf('/') + 1);
 const PORT = process.env.PORT || 3000;
 const app = express();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 console.log("DB URL " + url);
+console.log("db name " + dbName);
 let orders;
 
 app.post("/slack", urlencodedParser, async (req, res) => {
@@ -35,7 +37,7 @@ app.post("/api/clear", (req, res) => {
 
 MongoClient.connect(url, function(err, db) {
   if (err) throw err;
-  const dbo = db.db("wingy");
+  const dbo = db.db(dbName);
   dbo.createCollection("orders", function(err, res) {
     if (err) throw err;
     orders = res;
