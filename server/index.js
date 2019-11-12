@@ -10,8 +10,6 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-console.log("DB URL " + url);
-console.log("db name " + dbName);
 let orders;
 
 app.post("/slack", urlencodedParser, async (req, res) => {
