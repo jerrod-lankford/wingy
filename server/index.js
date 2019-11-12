@@ -160,7 +160,7 @@ function validateOrder(order) {
   }
 
   if (order.completed_before) {
-    text = `:white_check_mark: Order successfully updated!`;
+    text = `:white_check_mark: Order successfully updated: ${order.size} - ${order.sauces.join(", ")} - ${order.dressing} - ${order.fries || 'No'} fries!`;
     order.complete = true;
   } else {
     text = `:white_check_mark: Order placed: ${order.size} - ${order.sauces.join(", ")} - ${order.dressing} - ${order.fries || 'No'} fries!\nIf you change your mind you can order again to update your current order.`;
