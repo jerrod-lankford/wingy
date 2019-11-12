@@ -52,7 +52,11 @@ async function parseAction(payload) {
 
   let text;
   // In case it was complete before, any action will cause it to be uncompleted
-  order.complete = false;
+  if (order.complete) {
+    order.complete = false;
+    text = `:warning: Order updated but you need to click Order again to finalize.`;
+  }
+  
   switch (action.action_id) {
     case ACTIONS.SIZE:
       Object.assign(order, parseSize(action));
@@ -159,7 +163,7 @@ function validateOrder(order) {
     text = `:white_check_mark: Order successfully updated!`;
     order.complete = true;
   } else {
-    text = `:white_check_mark: Order successfully placed! If you change your mind you can order again to update your current order.`;
+    text = `:white_check_mark: Order placed: ${order.size} - ${order.sauces.join(", ")} - ${order.dressing} - ${order.fries || 'No'} fries!\nIf you change your mind you can order again to update your current order.`;
     order.complete = true;
     order.completed_before = true;
   }
