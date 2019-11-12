@@ -180,9 +180,9 @@ function sendMessage(responseURL, text) {
       response_type: "ephemeral"
     }
   };
-  request(postOptions, (error, response, body) => {
+  request(postOptions, (error) => {
     if (error) {
-      // TODO
+      console.log(`error sending validation message: ${error}`);
     }
   });
 }
