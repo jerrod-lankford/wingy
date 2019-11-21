@@ -27,7 +27,7 @@ async function main() {
 
   // Log Orders
   console.log(chalk.bgRed("Orders"));
-  console.table(everyone, ["time", "name", "size", "price", "sauces", "dressing", "complete"]);
+  console.table(everyone, ["time", "name", "size", "price", "sauces", "dressing", "fries", "complete"]);
 
   // Validate everyones order is complete
   if (everyone.some(o => !o.complete)) {
