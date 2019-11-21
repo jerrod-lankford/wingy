@@ -3,9 +3,8 @@ const { WebClient } = require("@slack/web-api");
 const { createReadStream } = require("fs");
 const { slackBlocks } = require("../common/slack-blocks.js");
 const chalk = require("chalk");
+const CONFIG = require("./configuration.json");
 
-const CHANNEL_NAME = "test-jerrod";
-const CHECK_INTERVAL_MS = 15 * 1000;
 const ORDER_STATUS_SELECTOR = "#order-tracker-status-text";
 const RECEIPT_SELECTOR = "#order-tracker-order-slip";
 const ESTIMATED_DELIVERY_SELECTOR = "//*[contains(text(),'Approximately')]";
@@ -70,7 +69,7 @@ module.exports.ChatBot = class ChatBot {
       } else {
         await page.reload();
       }
-    }, CHECK_INTERVAL_MS);
+    }, CONFIG.refreshInterval);
   }
 
   async postReceipt(page) {
@@ -84,7 +83,7 @@ module.exports.ChatBot = class ChatBot {
     await this.web.files.upload({
       filename: "receipt",
       file: createReadStream("./receipt.png"),
-      channels: CHANNEL_NAME,
+      channels: CONFIG.channelName,
       thread_ts: this.thread_ts
     });
   }
@@ -95,7 +94,7 @@ module.exports.ChatBot = class ChatBot {
       const channel = response.channel.id;
       const text = `Hi ${p.name}, you owe *${format(p.total)}*.\n` + 
       `Cost Breakdown - Price: ${format(p.price)} + Fries: ${format(p.fries)} + Tax/Tip/Delivery: ${format(p.ttd)}\n` +
-      `Accepted Payment methods: :paypal: paypal.me/JerrodLankford or :venmo: jerrod-lankford`;
+      CONFIG.paymentInfo;
       await postMessage(this.web, { text, channel });
     });
   }
@@ -144,7 +143,7 @@ async function getEstimatedDelivery(page) {
 
 async function postMessage(web, additionalParams) {
   let params = {
-    channel: CHANNEL_NAME
+    channel: CONFIG.channelName
   };
 
   params = Object.assign(params, additionalParams);

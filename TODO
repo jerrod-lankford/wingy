@@ -1,0 +1,5 @@
+Fix form clearing on channel swapping
+Fix order prep formatting
+Implement wings are getting close!
+Consider sending thread id to the server
+Consider changing how TTD is calculated
