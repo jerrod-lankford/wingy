@@ -1,5 +1,5 @@
 {
-  "channelName": "test-jerrod",
+  "channelName": "raleigh-want-wingy",
   "refreshInterval": 15000,
-  "paymentInfo": "Accepted Payment methods: :paypal: paypal.me/JerrodLankford or :venmo: jerrod-lankford"  
+  "paymentInfo": "Accepted Payment methods: :paypal: paypal.me/JerrodLankford/{$price} or :venmo: jerrod-lankford"  
 }

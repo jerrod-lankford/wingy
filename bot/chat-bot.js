@@ -93,8 +93,8 @@ module.exports.ChatBot = class ChatBot {
       const response = await this.web.im.open({ user: p.user_id });
       const channel = response.channel.id;
       const text = `Hi ${p.name}, you owe *${format(p.total)}*.\n` + 
-      `Cost Breakdown - Price: ${format(p.price)} + Fries: ${format(p.fries)} + Tax/Tip/Delivery: ${format(p.ttd)}\n` +
-      CONFIG.paymentInfo;
+        `Cost Breakdown - Price: ${format(p.price)} + Fries: ${format(p.fries)} + Tax/Tip/Delivery: ${format(p.ttd)}\n` +
+        CONFIG.paymentInfo.replace('{$price}', p.price.toFixed(2));
       await postMessage(this.web, { text, channel });
     });
   }
