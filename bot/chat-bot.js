@@ -94,7 +94,7 @@ module.exports.ChatBot = class ChatBot {
       const channel = response.channel.id;
       const text = `Hi ${p.name}, you owe *${format(p.total)}*.\n` + 
         `Cost Breakdown - Price: ${format(p.price)} + Fries: ${format(p.fries)} + Tax/Tip/Delivery: ${format(p.ttd)}\n` +
-        CONFIG.paymentInfo.replace('{$price}', p.price.toFixed(2));
+        CONFIG.paymentInfo.replace('{$total}', p.total.toFixed(2));
       await postMessage(this.web, { text, channel });
     });
   }
