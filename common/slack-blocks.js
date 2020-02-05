@@ -68,26 +68,26 @@ module.exports.slackBlocks = [
             {
               text: {
                 type: "plain_text",
-                text: "DC-10 (1LB) - $12.49",
+                text: "DC-10 (1LB) - $12.99",
                 emoji: true
               },
-              value: "Boneless:DC-10:12.49"
+              value: "Boneless:DC-10:12.99"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Skymaster (1.5LB) - $17.49",
+                text: "Skymaster (1.5LB) - $17.99",
                 emoji: true
               },
-              value: "Boneless:Skymaster:17.49"
+              value: "Boneless:Skymaster:17.99"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Stratocruiser (2LB) - $22.49",
+                text: "Stratocruiser (2LB) - $22.99",
                 emoji: true
               },
-              value: "Boneless:Stratocruiser:22.49"
+              value: "Boneless:Stratocruiser:22.99"
             }
           ]
         },
@@ -101,34 +101,34 @@ module.exports.slackBlocks = [
             {
               text: {
                 type: "plain_text",
-                text: "Paper Airplane (Snack) - $5.99",
+                text: "Paper Airplane (Snack) - $6.99",
                 emoji: true
               },
-              value: "Bone-in:Paper Airplane:5.99"
+              value: "Bone-in:Paper Airplane:6.99"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Puddle Jumper - $10.99",
+                text: "Puddle Jumper - $12.99",
                 emoji: true
               },
-              value: "Bone-in:Puddle Jumper:10.99"
+              value: "Bone-in:Puddle Jumper:12.99"
             },
             {
               text: {
                 type: "plain_text",
-                text: "F-16 - $15.99",
+                text: "F-16 - $18.99",
                 emoji: true
               },
-              value: "Bone-in:F-16:15.99"
+              value: "Bone-in:F-16:18.99"
             },
             {
               text: {
                 type: "plain_text",
-                text: "B-1 Bomber - $20.99",
+                text: "B-1 Bomber - $24.99",
                 emoji: true
               },
-              value: "Bone-in:B-1 Bomber:20.99"
+              value: "Bone-in:B-1 Bomber:24.99"
             }
           ]
         }
