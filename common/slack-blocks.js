@@ -367,6 +367,14 @@ module.exports.slackBlocks = [
                 emoji: true
               },
               value: "Korean Sweet Fire"
+            },
+            {
+              text: {
+                type: "plain_text",
+                text: "Honey Hot",
+                emoji: true
+              },
+              value: "Honey Hot"
             }
           ]
         }
