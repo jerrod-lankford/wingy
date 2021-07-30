@@ -1,36 +1,38 @@
 const puppeteer = require("puppeteer");
 const utils = require("./utils.js");
 
-const MENU = "https://wingsoverraleigh.foodtecsolutions.com/menu";
+const MENU = "https://order.wingsover.com/";
+
+const ADDRESS = "223 South West Street, Raleigh, NC 27603";
+
+const ADDRESS_INPUT_SELECTOR = "input.input-delivery";
+
+const ADDRESS_SELECT_SELECTOR = '[datatest="address-1"]';
+
+const ADDRESS_ORDER_SELECTOR = ".location-card-order-button-1";
 
 const NO_DRESSING = "No Dressing";
 
-const TYPE_SELECTORS = {
-  Boneless: "div#Boneless\\+Wings",
-  "Bone-in": "div#Wings",
-  "Side Orders": "div#Side\\+Orders"
-};
-
 const SIZE_SELECTORS = {
-  "DC-3": "div#CSSDC-3Wings h5",
-  "DC-10": "div#CSSDC-10Wings h5",
-  Skymaster: "div#CSSSkymasterWings h5",
-  Stratocruiser: "div#CSSStratocruiserWings h5",
-  "Paper Airplane": "div#CSSPaper_AirplaneWings h5",
-  "Puddle Jumper": "div#CSSPuddle_JumperWings h5",
-  "F-16": "div#CSSF-16Wings h5",
-  "B-1 Bomber": "div#CSSB-1_BomberWings h5",
-  "Small Waffle Fries":
-    "div#CSSWaffle_FriesAppetizer .menuPrice:nth-child(1) a",
-  "Large Waffle Fries": "div#CSSWaffle_FriesAppetizer .menuPrice:nth-child(2) a"
+  "2 Tenders": ".menu-item-1-0 button",
+  "4 Tenders": ".menu-item-1-1 button",
+  "6 Tenders": ".menu-item-1-2 button",
+  "8 Tenders": ".menu-item-1-3 button",
+  "6 Wings": ".menu-item-2-0 button",
+  "9 Wings": ".menu-item-2-0 button",
+  "12 Wings": ".menu-item-2-0 button",
+  "Regular Fries": ".menu-item-5-0 button",
+  "Large Fries": ".menu-item-5-0 button"
 };
 
 // We treat cajun and mesquite the same, will randomize between the two
-const FRY_RUBS = ["Cajun/Mesquite", "Garlic Parm", "Ranch"];
+const FRY_RUBS = ["Cajun/Mesquite", "Lemon Pepper", "7 Pepper", "Garlic Parm"];
 
-const ITEM_SELECTOR = "span[title='{0}']";
+const ITEM_SELECTOR = "img[alt='{0}']";
 
-const DONE_SELECTOR = "button.item-edit-done";
+const ADD_TO_CART_SELECTOR = '[datatest="itemDetails-add-to-cart-button"]';
+
+const DELIVERY_SELECTOR = "//*[contains(text(),'Delivery')]";
 
 const ADD_TIP_SELECTOR = "#add-tip-link";
 
@@ -43,7 +45,6 @@ module.exports.order = async function(everyone) {
 
   for (const person of everyone) {
     const order = new Order(person, page);
-    await order.type();
     await order.size();
     await order.sauces();
     await order.dressing();
@@ -52,7 +53,6 @@ module.exports.order = async function(everyone) {
 
   const fryOrders = createFryOrders(everyone, page);
   for (const fryOrder of fryOrders) {
-    await fryOrder.type();
     await fryOrder.size();
     await fryOrder.sauces();
     await fryOrder.done();
@@ -69,12 +69,26 @@ async function start() {
   const page = await browser.newPage();
   await page.setViewport({ width: 1366, height: 768 });
   await page.goto(MENU);
+  await goToOrderPage(page);
   return page;
 }
 
-async function waitThenClick(page, selector) {
-  await page.waitForSelector(selector);
-  await page.click(selector);
+async function goToOrderPage(page) {
+  await waitThenClick(page, DELIVERY_SELECTOR, true);
+  await page.type(ADDRESS_INPUT_SELECTOR, ADDRESS);
+  await waitThenClick(page, ADDRESS_SELECT_SELECTOR);
+  await waitThenClick(page, ADDRESS_ORDER_SELECTOR);
+}
+
+async function waitThenClick(page, selector, isXpath) {
+  if (isXpath) {
+    await page.waitForXPath(selector);
+    const elements = await page.$x(selector);
+    await elements[0].click();
+  } else {
+    await page.waitForSelector(selector);
+    await page.click(selector);
+  }
 }
 
 function createFryOrders(everyone, page) {
@@ -91,8 +105,7 @@ function createFryOrders(everyone, page) {
     orders.push(
       new Order(
         {
-          type: "Side Orders",
-          size: "Small Waffle Fries",
+          size: "Regular Fries",
           sauces: [getSauce(rubs)]
         },
         page
@@ -105,8 +118,7 @@ function createFryOrders(everyone, page) {
     orders.push(
       new Order(
         {
-          type: "Side Orders",
-          size: "Large Waffle Fries",
+          size: "Large Fries",
           sauces: [getSauce(rubs)]
         },
         page
@@ -157,17 +169,16 @@ class Order {
     this.page = page;
   }
 
-  async type() {
-    const selector = TYPE_SELECTORS[this.person.type];
-    await waitThenClick(this.page, selector);
-  }
-
   async size() {
     const selector = SIZE_SELECTORS[this.person.size];
     await waitThenClick(this.page, selector);
   }
 
   async sauces() {
+    const not_meal = ITEM_SELECTOR.replace("{0}", this.person.size);
+    console.log(not_meal);
+    await waitThenClick(this.page, not_meal);
+
     for (const sauce of this.person.sauces) {
       const selector = ITEM_SELECTOR.replace("{0}", sauce.replace("'", "\\'"));
       await waitThenClick(this.page, selector);
@@ -181,6 +192,6 @@ class Order {
   }
 
   async done() {
-    await waitThenClick(this.page, DONE_SELECTOR);
+    await waitThenClick(this.page, ADD_TO_CART_SELECTOR);
   }
 }

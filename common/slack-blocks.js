@@ -53,82 +53,74 @@ module.exports.slackBlocks = [
         {
           label: {
             type: "plain_text",
-            text: "Boneless",
+            text: "Hand Breaded Tendies",
             emoji: true
           },
           options: [
             {
               text: {
                 type: "plain_text",
-                text: "DC-3 (1/2 LB) - $6.99",
+                text: "2 Tenders - $4.99",
                 emoji: true
               },
-              value: "Boneless:DC-3:6.99"
+              value: "Tenders:2:4.99"
             },
             {
               text: {
                 type: "plain_text",
-                text: "DC-10 (1LB) - $12.99",
+                text: "4 Tenders - $7.99",
                 emoji: true
               },
-              value: "Boneless:DC-10:12.99"
+              value: "Tenders:4:7.99"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Skymaster (1.5LB) - $17.99",
+                text: "6 Tenders - $11.49",
                 emoji: true
               },
-              value: "Boneless:Skymaster:17.99"
+              value: "Tenders:6:11.49"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Stratocruiser (2LB) - $22.99",
+                text: "8 Tenders - $14.49",
                 emoji: true
               },
-              value: "Boneless:Stratocruiser:22.99"
+              value: "Tenders:8:14.49"
             }
           ]
         },
         {
           label: {
             type: "plain_text",
-            text: "Bone-in",
+            text: "Jumbo Wings",
             emoji: true
           },
           options: [
             {
               text: {
                 type: "plain_text",
-                text: "Paper Airplane (Snack) - $6.99",
+                text: "6 Wings - $9.49",
                 emoji: true
               },
-              value: "Bone-in:Paper Airplane:6.99"
+              value: "Wings:6:9.49"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Puddle Jumper - $12.99",
+                text: "9 Wings - $14.49",
                 emoji: true
               },
-              value: "Bone-in:Puddle Jumper:12.99"
+              value: "Wings:9:14.49"
             },
             {
               text: {
                 type: "plain_text",
-                text: "F-16 - $18.99",
+                text: "12 Wings - $17.49",
                 emoji: true
               },
-              value: "Bone-in:F-16:18.99"
-            },
-            {
-              text: {
-                type: "plain_text",
-                text: "B-1 Bomber - $24.99",
-                emoji: true
-              },
-              value: "Bone-in:B-1 Bomber:24.99"
+              value: "Wings:12:17.49"
             }
           ]
         }
@@ -178,67 +170,92 @@ module.exports.slackBlocks = [
             {
               text: {
                 type: "plain_text",
-                text: "Mustang ranch",
+                text: "7 Pepper",
                 emoji: true
               },
-              value: "Mustang ranch"
+              value: "7 Pepper"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Garlic Parmesan",
+                text: "Garlic Parm ⭐️",
                 emoji: true
               },
-              value: "Garlic Parmesan"
+              value: "Garlic Parm ⭐️"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Lemon Pepper",
+                text: "Lemon Pepper ⭐️",
                 emoji: true
               },
-              value: "Lemon Pepper"
+              value: "Lemon Pepper ⭐️"
             }
           ]
         },
         {
           label: {
             type: "plain_text",
-            text: "Wet",
+            text: "Buffalo",
             emoji: true
           },
           options: [
             {
               text: {
                 type: "plain_text",
-                text: "Wimpy",
+                text: "Mild 🌶️",
                 emoji: true
               },
-              value: "Wimpy"
+              value: "Mild 🌶️"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Red Alert",
+                text: "Medium 🌶️🌶️ ⭐",
                 emoji: true
               },
-              value: "Red Alert"
+              value: "Medium 🌶️🌶️ ⭐"
             },
             {
               text: {
                 type: "plain_text",
-                text: "AfterBurner",
+                text: "Hot 🌶️🌶️🌶️",
                 emoji: true
               },
-              value: "AfterBurner"
+              value: "Hot 🌶️🌶️🌶️"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Bar-B-Que",
+                text: "Fire 🌶️🌶️🌶️🌶️🌶️",
                 emoji: true
               },
-              value: "Bar-B-Que"
+              value: "Fire 🌶️🌶️🌶️🌶️🌶️"
+            }
+          ]
+        },
+        {
+          label: {
+            type: "plain_text",
+            text: "BBQ",
+            emoji: true
+          },
+          options: [
+            {
+              text: {
+                type: "plain_text",
+                text: "Cajun BBQ",
+                emoji: true
+              },
+              value: "Cajun BBQ"
+            },
+            {
+              text: {
+                type: "plain_text",
+                text: "Citrus Chipotle 🌶",
+                emoji: true
+              },
+              value: "Citrus Chipotle 🌶"
             },
             {
               text: {
@@ -251,82 +268,35 @@ module.exports.slackBlocks = [
             {
               text: {
                 type: "plain_text",
-                text: "Cajun BBQ",
+                text: "Honey BBQ ⭐️",
                 emoji: true
               },
-              value: "Cajun BBQ"
+              value: "Honey BBQ ⭐️"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Honey Mustard",
+                text: "Kickin' BBQ 🌶",
                 emoji: true
               },
-              value: "Honey Mustard"
-            },
+              value: "Kickin' BBQ 🌶"
+            }
+          ]
+        },
+        {
+          label: {
+            type: "plain_text",
+            text: "Teriyaki",
+            emoji: true
+          },
+          options: [
             {
               text: {
                 type: "plain_text",
-                text: "Plain",
+                text: "Traditional Teriyaki",
                 emoji: true
               },
-              value: "Plain"
-            },
-            {
-              text: {
-                type: "plain_text",
-                text: "Hot Garlic",
-                emoji: true
-              },
-              value: "Hot Garlic"
-            },
-            {
-              text: {
-                type: "plain_text",
-                text: "Spicy Teriyaki",
-                emoji: true
-              },
-              value: "Spicy Teriyaki"
-            },
-            {
-              text: {
-                type: "plain_text",
-                text: "Citrus Chipotle",
-                emoji: true
-              },
-              value: "Citrus Chipotle"
-            },
-            {
-              text: {
-                type: "plain_text",
-                text: "Cruisin Altitude",
-                emoji: true
-              },
-              value: "Cruisin Altitude"
-            },
-            {
-              text: {
-                type: "plain_text",
-                text: "Jet Fuel",
-                emoji: true
-              },
-              value: "Jet Fuel"
-            },
-            {
-              text: {
-                type: "plain_text",
-                text: "Honey BBQ",
-                emoji: true
-              },
-              value: "Honey BBQ"
-            },
-            {
-              text: {
-                type: "plain_text",
-                text: "Kickin' BBQ",
-                emoji: true
-              },
-              value: "Kickin' BBQ"
+              value: "Traditional Teriyaki"
             },
             {
               text: {
@@ -339,42 +309,59 @@ module.exports.slackBlocks = [
             {
               text: {
                 type: "plain_text",
-                text: "Teriyaki",
+                text: "Spicy Teriyaki 🌶",
                 emoji: true
               },
-              value: "Teriyaki"
+              value: "Spicy Teriyaki 🌶"
+            }
+          ]
+        },
+        {
+          label: {
+            type: "plain_text",
+            text: "Savory",
+            emoji: true
+          },
+          options: [
+            {
+              text: {
+                type: "plain_text",
+                text: "Honey Mustard ⭐️",
+                emoji: true
+              },
+              value: "Honey Mustard ⭐️"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Jamaican Jerk",
+                text: "Hot Garlic 🌶",
                 emoji: true
               },
-              value: "Jamaican Jerk"
+              value: "Hot Garlic 🌶"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Sweet Chili",
+                text: "Jamaican Jerk 🌶",
                 emoji: true
               },
-              value: "Sweet Chili"
+              value: "Jamaican Jerk 🌶"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Korean Sweet Fire",
+                text: "Mango Habanero 🌶",
                 emoji: true
               },
-              value: "Korean Sweet Fire"
+              value: "Mango Habanero 🌶"
             },
             {
               text: {
                 type: "plain_text",
-                text: "Honey Hot",
+                text: "Sweet Chili 🌶",
                 emoji: true
               },
-              value: "Honey Hot"
+              value: "Sweet Chili 🌶"
             }
           ]
         }
