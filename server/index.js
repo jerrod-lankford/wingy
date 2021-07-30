@@ -129,8 +129,7 @@ function updateOrder(order) {
 function parseSize(action) {
   const values = action.selected_option.value.split(":");
   return {
-    type: values[0],
-    size: values[1],
+    size: `${values[1]}${values[0]}`,
     price: parseFloat(values[2])
   };
 }
