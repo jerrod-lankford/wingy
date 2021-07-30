@@ -143,7 +143,7 @@ function parseMultiselect(action) {
 }
 
 function validateOrder(order) {
-  if (!order || !order.type || !order.price || 
+  if (!order || !order.price || 
     !order.size || !order.sauces || !order.dressing) {
     return `:x: Please fill in required fields: Order, sauces, and dressing.`;
   }
