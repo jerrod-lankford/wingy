@@ -162,10 +162,10 @@ module.exports.slackBlocks = [
             {
               text: {
                 type: "plain_text",
-                text: "Cajun Blackened",
+                text: "Cajun",
                 emoji: true
               },
-              value: "Cajun Blackened"
+              value: "Cajun"
             },
             {
               text: {
@@ -342,6 +342,14 @@ module.exports.slackBlocks = [
             {
               text: {
                 type: "plain_text",
+                text: "Hot Lemon Pepper 🌶",
+                emoji: true
+              },
+              value: "Hot Lemon Pepper 🌶"
+            },
+            {
+              text: {
+                type: "plain_text",
                 text: "Jamaican Jerk 🌶",
                 emoji: true
               },
@@ -362,6 +370,14 @@ module.exports.slackBlocks = [
                 emoji: true
               },
               value: "Sweet Chili 🌶"
+            },
+            {
+              text: {
+                type: "plain_text",
+                text: "Sweet Korean Fire 🌶",
+                emoji: true
+              },
+              value: "Sweet Korean Fire 🌶"
             }
           ]
         }
