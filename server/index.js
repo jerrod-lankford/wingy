@@ -129,7 +129,7 @@ function updateOrder(order) {
 function parseSize(action) {
   const values = action.selected_option.value.split(":");
   return {
-    size: `${values[1]}${values[0]}`,
+    size: `${values[1]} ${values[0]}`,
     price: parseFloat(values[2])
   };
 }
@@ -148,14 +148,10 @@ function validateOrder(order) {
     return `:x: Please fill in required fields: Order, sauces, and dressing.`;
   }
 
-  if ((order.size === "DC-3" || order.size === "Paper Airplane") && order.sauces.length > 1) {
+  if ((order.size === "2 Tenders" || order.size === "4 Tenders" || order.size === "6 Wings") && order.sauces.length > 1) {
     return `:x: With ${order.size} you are only allowed to have 1 sauce.`;
-  } else if ((order.size === "DC-10" || order.size === "Puddle Jumper") && order.sauces.length > 2) {
+  } else if ((order.size === "6 Tenders" || order.size === "8 Tenders" || order.size === "9 Wings" || order.size === "12 wings") && order.sauces.length > 2) {
     return `:x: With ${order.size} you are only allowed to have up to 2 sauces.`;
-  } else if ((order.size === "F-16" || order.size === "Skymaster") && order.sauces.length > 3) {
-    return `:x: With ${order.size} you are only allowed to have up to 3 sauces.`;
-  } else if ((order.size === "B-1 Bomber" || order.size === "Stratocruiser") && order.sauces.length > 4) {
-    return `:x: With ${order.size} you are only allowed to have up to 4 sauces.`;
   }
 
   if (order.completed_before) {
