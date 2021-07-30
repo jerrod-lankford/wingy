@@ -38,7 +38,7 @@ MongoClient.connect(url, function(err, db) {
   const dbo = db.db(dbName);
   dbo.createCollection('orders', function(err, res) {
     if (err) { 
-      console.log(err);
+      throw err;
     }
     orders = res;
     console.log(`Listening on ${PORT}...`);
