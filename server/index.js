@@ -1,30 +1,30 @@
-const express = require("express");
-const request = require("request");
-const bodyParser = require("body-parser");
+const express = require('express');
+const request = require('request');
+const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
-const { ACTIONS } = require("../common/slack-blocks.js");
+const { ACTIONS } = require('../common/slack-blocks.js');
 
-const url = process.env.MONGODB_URI || "mongodb://localhost:27017/wingy";
-const dbName = url.substr(url.lastIndexOf('/') + 1).split("?")[0];
+const url = process.env.MONGODB_URI || 'mongodb://localhost:27017/wingy';
+const dbName = url.substr(url.lastIndexOf('/') + 1).split('?')[0];
 const PORT = process.env.PORT || 3000;
 const app = express();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 let orders;
 
-app.post("/slack", urlencodedParser, async (req, res) => {
+app.post('/slack', urlencodedParser, async (req, res) => {
   var actionJSONPayload = JSON.parse(req.body.payload);
   await parseAction(actionJSONPayload);
   res.status(200).end();
 });
 
-app.get("/api/orders", async (req, res) => {
+app.get('/api/orders', async (req, res) => {
   const cursor = orders.find({});
   const allOrders = await cursor.toArray();
   res.status(200).send(allOrders).end();
 });
 
-app.post("/api/clear", (req, res) => {
+app.post('/api/clear', (req, res) => {
   const result = orders.remove({});
   if (!result.writeError) {
     res.status(200).end();
@@ -36,7 +36,7 @@ app.post("/api/clear", (req, res) => {
 MongoClient.connect(url, function(err, db) {
   if (err) throw err;
   const dbo = db.db(dbName);
-  dbo.createCollection("orders", function(err, res) {
+  dbo.createCollection('orders', function(err, res) {
     if (err) throw err;
     orders = res;
     console.log(`Listening on ${PORT}...`);
@@ -104,7 +104,7 @@ function lookupOrCreateOrder(user) {
         // Insert the new order and return it
         orders.insertOne(order, function(err, res) {
           if (err) reject(err);
-          console.log("new order created");
+          console.log('new order created');
           resolve(order);
         });
       }
@@ -119,7 +119,7 @@ function updateOrder(order) {
     var values = { $set: {...order}};
     orders.updateOne(query, values, function(err) {
       if (err) reject(err);
-      console.log("order updated");
+      console.log('order updated');
       resolve(true);
     });
   });
@@ -127,9 +127,10 @@ function updateOrder(order) {
 
 // Form return values are Type:Size:Price eg (Boneless:DC-3:6.99)
 function parseSize(action) {
-  const values = action.selected_option.value.split(":");
+  const values = action.selected_option.value.split(':');
   return {
-    size: `${values[1]} ${values[0]}`,
+    type: values[0],
+    size: values[1],
     price: parseFloat(values[2])
   };
 }
@@ -148,17 +149,17 @@ function validateOrder(order) {
     return `:x: Please fill in required fields: Order, sauces, and dressing.`;
   }
 
-  if ((order.size === "2 Tenders" || order.size === "4 Tenders" || order.size === "6 Wings") && order.sauces.length > 1) {
+  if ((order.size === '2 Tenders' || order.size === '4 Tenders' || order.size === '6 Wings') && order.sauces.length > 1) {
     return `:x: With ${order.size} you are only allowed to have 1 sauce.`;
-  } else if ((order.size === "6 Tenders" || order.size === "8 Tenders" || order.size === "9 Wings" || order.size === "12 wings") && order.sauces.length > 2) {
+  } else if ((order.size === '6 Tenders' || order.size === '8 Tenders' || order.size === '9 Wings' || order.size === '12 wings') && order.sauces.length > 2) {
     return `:x: With ${order.size} you are only allowed to have up to 2 sauces.`;
   }
 
   if (order.completed_before) {
-    text = `:white_check_mark: Order successfully updated: ${order.size} - ${order.sauces.join(", ")} - ${order.dressing} - ${order.fries || 'No'} fries!`;
+    text = `:white_check_mark: Order successfully updated: ${order.size} - ${order.sauces.join(', ')} - ${order.dressing} - ${order.fries || 'No'} fries!`;
     order.complete = true;
   } else {
-    text = `:white_check_mark: Order placed: ${order.size} - ${order.sauces.join(", ")} - ${order.dressing} - ${order.fries || 'No'} fries!\nIf you change your mind you can order again to update your current order.`;
+    text = `:white_check_mark: Order placed: ${order.size} - ${order.sauces.join(', ')} - ${order.dressing} - ${order.fries || 'No'} fries!\nIf you change your mind you can order again to update your current order.`;
     order.complete = true;
     order.completed_before = true;
   }
@@ -169,14 +170,14 @@ function validateOrder(order) {
 function sendMessage(responseURL, text) {
   var postOptions = {
     uri: responseURL,
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-type": "application/json"
+      'Content-type': 'application/json'
     },
     json: {
       text,
       replace_original: false,
-      response_type: "ephemeral"
+      response_type: 'ephemeral'
     }
   };
   request(postOptions, (error) => {
