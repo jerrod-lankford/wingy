@@ -5,7 +5,7 @@ const MongoClient = require('mongodb').MongoClient;
 const { ACTIONS } = require("../common/slack-blocks.js");
 
 const url = process.env.MONGODB_URI || "mongodb://localhost:27017/wingy";
-const dbName = url.substr(url.lastIndexOf('/') + 1);
+const dbName = url.substr(url.lastIndexOf('/') + 1).split("?")[0];
 const PORT = process.env.PORT || 3000;
 const app = express();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
