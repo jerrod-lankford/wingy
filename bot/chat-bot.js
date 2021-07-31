@@ -1,16 +1,14 @@
-const secret = require("./secret.json");
-const { WebClient } = require("@slack/web-api");
-const { createReadStream } = require("fs");
-const { slackBlocks } = require("../common/slack-blocks.js");
-const chalk = require("chalk");
-const CONFIG = require("./configuration.json");
+const secret = require('./secret.json');
+const { WebClient } = require('@slack/web-api');
+const { createReadStream } = require('fs');
+const { slackBlocks } = require('../common/slack-blocks.js');
+const chalk = require('chalk');
+const CONFIG = require('./configuration.json');
+const { timeout } = require('./utils');
 
-const ORDER_STATUS_SELECTOR = "#order-tracker-status-text";
-const RECEIPT_SELECTOR = "#order-tracker-order-slip";
-const ESTIMATED_DELIVERY_SELECTOR = "//*[contains(text(),'Approximately')]";
-const ORDER_TRACKER_FRAGMENT = "/orderTracker?";
-const ORDER_TRACKER_CONTAINER_SELECTOR = "#order-tracker-container";
-const ORDER_PREPERATION_SELECTOR = "#order-tracker-overlay";
+const RECEIPT_SELECTOR = '#order-tracker-order-slip';
+const ORDER_TRACKER_CONTAINER_SELECTOR = '#order-tracker-container';
+const ORDER_PREPERATION_SELECTOR = '#order-tracker-overlay';
 
 module.exports.ChatBot = class ChatBot {
   constructor() {
@@ -23,7 +21,7 @@ module.exports.ChatBot = class ChatBot {
 
   async postOrderForm() {
     const result = await postMessage(this.web, {
-      text: "Order up! Lunch thread...",
+      text: 'Order up! Lunch thread...',
       blocks: slackBlocks
     });
     this.thread_ts = result.ts;
@@ -32,44 +30,8 @@ module.exports.ChatBot = class ChatBot {
 
   async atMentionEveryone(everyone) {
     const { thread_ts } = this;
-    const text = everyone.map(e => `@${e.name}`).join(" ");
+    const text = everyone.map(e => `@${e.name}`).join(' ');
     await postMessage(this.web, { text, thread_ts, link_names: true });
-  }
-
-  async startOrderMonitoring(page) {
-    const { thread_ts } = this;
-    console.log("Starting order monitoring...");
-    let lastKnownStatus, lastKnownEstimatedDelivery;
-    const interval = setInterval(async () => {
-      const status = await getStatus(page);
-      const estimatedDelivery = await getEstimatedDelivery(page);
-
-      // Post estimated delivery
-      if (lastKnownEstimatedDelivery !== estimatedDelivery) {
-        await postMessage(this.web, {
-          text: `Esimated delivery: ${estimatedDelivery}`,
-          thread_ts
-        });
-        lastKnownEstimatedDelivery = estimatedDelivery;
-      }
-
-      // Post delivery status
-      if (status !== lastKnownStatus) {
-        await postMessage(this.web, {
-          text: `Wing status: ${status}`,
-          thread_ts
-        });
-        lastKnownStatus = status;
-      }
-
-      // Either return or reload
-      if (status.includes("Delivered")) {
-        console.log("Order tracking concluded");
-        clearInterval(interval);
-      } else {
-        await page.reload();
-      }
-    }, CONFIG.refreshInterval);
   }
 
   async postReceipt(page) {
@@ -78,22 +40,22 @@ module.exports.ChatBot = class ChatBot {
     // There seems to be a glitch that causes the receipt to be blank
     // so lets wait a sec before taking the screenshot after finding the dom node
     await timeout(1000);
-    await screenshotDOMElement(page, RECEIPT_SELECTOR, "receipt.png");
+    await screenshotDOMElement(page, RECEIPT_SELECTOR, 'receipt.png');
 
     await this.web.files.upload({
-      filename: "receipt",
-      file: createReadStream("./receipt.png"),
+      filename: 'receipt',
+      file: createReadStream('./receipt.png'),
       channels: CONFIG.channelName,
       thread_ts: this.thread_ts
     });
   }
 
-  async postPaymentInfo(page, payments) {
+  async postPaymentInfo(payments) {
     payments.forEach(async p => {
-      const response = await this.web.im.open({ user: p.user_id });
+      const response = await this.web.conversations.open({ user: p.user_id });
       const channel = response.channel.id;
       const text = `Hi ${p.name}, you owe *${format(p.total)}*.\n` + 
-        `Cost Breakdown - Price: ${format(p.price)} + Fries: ${format(p.fries)} + Tax/Tip/Delivery: ${format(p.ttd)}\n` +
+        `Cost Breakdown - Price: ${format(p.price)} + Fries: ${format(p.fries)} + Tip/Delivery: ${format(p.tipDelivery)} + Tax: ${format(p.tax)}\n` +
         CONFIG.paymentInfo.replace('{$total}', p.total.toFixed(2));
       await postMessage(this.web, { text, channel });
     });
@@ -111,36 +73,9 @@ module.exports.ChatBot = class ChatBot {
       await postMessage(this.web, { text, thread_ts });
     }
   }
-
-  waitForOrderPage(page, callback) {
-    console.log("Waiting for order status page...");
-    const interval = setInterval(() => {
-      if (page.url().includes(ORDER_TRACKER_FRAGMENT)) {
-        clearInterval(interval);
-        callback();
-      }
-    }, 1000);
-  }
 };
 
 /****** HELPER NETHODS ********/
-async function getStatus(page) {
-  const status = await page.evaluate(
-    selector => document.querySelector(selector).textContent,
-    ORDER_STATUS_SELECTOR
-  );
-  return status.trim();
-}
-
-async function getEstimatedDelivery(page) {
-  const xpathData = await page.$x(ESTIMATED_DELIVERY_SELECTOR);
-  if (xpathData && xpathData.length > 0) {
-    const xpathTextContent = await xpathData[0].getProperty("textContent");
-    return await xpathTextContent.jsonValue();
-  }
-  return "";
-}
-
 async function postMessage(web, additionalParams) {
   let params = {
     channel: CONFIG.channelName
@@ -166,10 +101,6 @@ async function screenshotDOMElement(page, selector, name) {
       height: rect.height
     }
   });
-}
-
-function timeout(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function format(value) {

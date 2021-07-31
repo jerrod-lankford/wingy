@@ -1,6 +1,8 @@
+New TODO:
+Fix everything that happens after order
+
 Fix form clearing on channel swapping - cant
 Fix order prep formatting
 Implement wings are getting close!
 div#map-wrapper path
 Consider sending thread id to the server
-Consider changing how TTD is calculated

@@ -1,44 +1,38 @@
-const puppeteer = require("puppeteer");
-const utils = require("./utils.js");
+const puppeteer = require('puppeteer');
+const utils = require('./utils.js');
+const { timeout } = require('./utils');
 
-const MENU = "https://order.wingsover.com/";
+const MENU = 'https://order.wingsover.com/';
 
-const ADDRESS = "223 South West Street, Raleigh, NC 27603";
+const ADDRESS = '223 South West Street, Raleigh, NC 27603';
 
-const ADDRESS_INPUT_SELECTOR = "input.input-delivery";
+const ADDRESS_INPUT_SELECTOR = 'input.input-delivery';
 
 const ADDRESS_SELECT_SELECTOR = '[datatest="address-1"]';
 
-const ADDRESS_ORDER_SELECTOR = ".location-card-order-button-1";
+const ADDRESS_ORDER_SELECTOR = '.location-card-order-button-1';
 
-const NO_DRESSING = "No Dressing";
+const NO_DRESSING = 'No Dressing';
 
-const SIZE_SELECTORS = {
-  "2 Tenders": ".menu-item-1-0 button",
-  "4 Tenders": ".menu-item-1-1 button",
-  "6 Tenders": ".menu-item-1-2 button",
-  "8 Tenders": ".menu-item-1-3 button",
-  "6 Wings": ".menu-item-2-0 button",
-  "9 Wings": ".menu-item-2-0 button",
-  "12 Wings": ".menu-item-2-0 button",
-  "Regular Fries": ".menu-item-5-0 button",
-  "Large Fries": ".menu-item-5-0 button"
+const ORDER_SELECTORS = {
+  '2 Tenders': '.menu-item-1-0 button',
+  '4 Tenders': '.menu-item-1-1 button',
+  '6 Tenders': '.menu-item-1-2 button',
+  '8 Tenders': '.menu-item-1-3 button',
+  '6 Wings': '.menu-item-2-0 button',
+  '9 Wings': '.menu-item-2-1 button',
+  '12 Wings': '.menu-item-2-2 button',
+  'Regular Fries': '.menu-item-5-0 button',
+  'Large Fries': '.menu-item-5-0 button'
 };
 
-// We treat cajun and mesquite the same, will randomize between the two
-const FRY_RUBS = ["Cajun/Mesquite", "Lemon Pepper", "7 Pepper", "Garlic Parm"];
+const FRY_RUBS = ['Cajun', 'West Texas Mesquite', 'Lemon Pepper ⭐️', '7 Pepper', 'Garlic Parm ⭐️'];
 
-const ITEM_SELECTOR = "img[alt='{0}']";
+const ITEM_SELECTOR = 'img[alt="{0}"]';
 
 const ADD_TO_CART_SELECTOR = '[datatest="itemDetails-add-to-cart-button"]';
 
-const DELIVERY_SELECTOR = "//*[contains(text(),'Delivery')]";
-
-const ADD_TIP_SELECTOR = "#add-tip-link";
-
-const TIP_BUTTON_SELECTOR = "#calculator-button-15"; // Hardcoded 15% tip, also hardcoded in payment utils
-
-const TIP_DONE_BUTTON_SELECTOR = ".tip-calculator-dialog .done-button";
+const DELIVERY_SELECTOR = '//*[contains(text(),"Delivery")]';
 
 module.exports.order = async function(everyone) {
   const page = await start();
@@ -46,6 +40,7 @@ module.exports.order = async function(everyone) {
   for (const person of everyone) {
     const order = new Order(person, page);
     await order.size();
+    await order.type();
     await order.sauces();
     await order.dressing();
     await order.done();
@@ -54,11 +49,10 @@ module.exports.order = async function(everyone) {
   const fryOrders = createFryOrders(everyone, page);
   for (const fryOrder of fryOrders) {
     await fryOrder.size();
+    await fryOrder.type();
     await fryOrder.sauces();
     await fryOrder.done();
   }
-
-  await addTip(page);
 
   return page;
 };
@@ -67,7 +61,7 @@ module.exports.order = async function(everyone) {
 async function start() {
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
-  await page.setViewport({ width: 1366, height: 768 });
+  await page.setViewport({ width: 1600, height: 768 });
   await page.goto(MENU);
   await goToOrderPage(page);
   return page;
@@ -94,7 +88,7 @@ async function waitThenClick(page, selector, isXpath) {
 function createFryOrders(everyone, page) {
   // Number of people that want frys
   const fryPeeps = everyone.reduce((accum, curr) => {
-    return curr.fries === "Yes" ? ++accum : accum;
+    return curr.fries === 'Yes' ? ++accum : accum;
   }, 0);
   const fries = utils.fryCalc(fryPeeps);
   const orders = [];
@@ -105,7 +99,8 @@ function createFryOrders(everyone, page) {
     orders.push(
       new Order(
         {
-          size: "Regular Fries",
+          type: 'Fries',
+          size: 'Regular',
           sauces: [getSauce(rubs)]
         },
         page
@@ -118,7 +113,8 @@ function createFryOrders(everyone, page) {
     orders.push(
       new Order(
         {
-          size: "Large Fries",
+          type: 'Fries',
+          size: 'Large',
           sauces: [getSauce(rubs)]
         },
         page
@@ -147,18 +143,12 @@ function getSauce(previousRubs) {
   let choice = choices[index];
 
   // Break up mesquite and cajun
-  if (choice.includes("/")) {
-    choice = choice.split("/")[Math.floor(Math.random() * 2)];
+  if (choice.includes('/')) {
+    choice = choice.split('/')[Math.floor(Math.random() * 2)];
   }
 
   previousRubs.push(choice);
   return choice;
-}
-
-async function addTip(page) {
-  await waitThenClick(page, ADD_TIP_SELECTOR);
-  await waitThenClick(page, TIP_BUTTON_SELECTOR);
-  await waitThenClick(page, TIP_DONE_BUTTON_SELECTOR);
 }
 /* end helper functions */
 
@@ -170,28 +160,33 @@ class Order {
   }
 
   async size() {
-    const selector = SIZE_SELECTORS[this.person.size];
+    const order = `${this.person.size} ${this.person.type}`;
+    const selector = ORDER_SELECTORS[order];
+    await waitThenClick(this.page, selector);
+    await timeout(1000);
+  }
+
+  async type() {
+    const type = this.person.type === 'Fries' ? this.person.size : `${this.person.size} ${this.person.type}`;
+    const selector = ITEM_SELECTOR.replace('{0}', type)
     await waitThenClick(this.page, selector);
   }
 
   async sauces() {
-    const not_meal = ITEM_SELECTOR.replace("{0}", this.person.size);
-    console.log(not_meal);
-    await waitThenClick(this.page, not_meal);
-
     for (const sauce of this.person.sauces) {
-      const selector = ITEM_SELECTOR.replace("{0}", sauce.replace("'", "\\'"));
+      const selector = ITEM_SELECTOR.replace('{0}', sauce.replace("'", "\\'"));
       await waitThenClick(this.page, selector);
     }
   }
 
   async dressing() {
     const dressing = this.person.dressing || NO_DRESSING;
-    const selector = ITEM_SELECTOR.replace("{0}", dressing);
+    const selector = ITEM_SELECTOR.replace('{0}', dressing);
     await waitThenClick(this.page, selector);
   }
 
   async done() {
     await waitThenClick(this.page, ADD_TO_CART_SELECTOR);
+    await timeout(1000);
   }
 }

@@ -1,6 +1,6 @@
-const axios = require("axios");
+const axios = require('axios');
 
-const BASE_URL = "https://wingy.herokuapp.com";
+const BASE_URL = 'https://wingy.herokuapp.com';
 const ORDER_URL = `${BASE_URL}/api/orders`;
 const CLEAR_ORDER_URL = `${BASE_URL}/api/clear`;
 
@@ -28,7 +28,7 @@ module.exports.getOrders = async function() {
   if (response.data) {
     return response.data;
   } else {
-    throw new Error("Error making xhr to get orders.");
+    throw new Error('Error making xhr to get orders.');
   }
 };
 
@@ -39,3 +39,7 @@ module.exports.clearOrders = async function() {
   }
   return response;
 };
+
+module.exports.timeout = async function timeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

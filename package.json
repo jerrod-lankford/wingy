@@ -17,7 +17,7 @@
     "express": "^4.17.1",
     "googleapis": "^39.2.0",
     "mongodb": "^4.0.1",
-    "puppeteer": "^1.20.0",
+    "puppeteer": "^10.1.0",
     "readline-sync": "^1.4.10",
     "request": "^2.88.0"
   }
