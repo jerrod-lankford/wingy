@@ -36,14 +36,21 @@ app.post('/api/clear', (req, res) => {
 MongoClient.connect(url, function(err, db) {
   if (err) throw err;
   const dbo = db.db(dbName);
-  dbo.createCollection('orders', function(err, res) {
-    if (err) { 
-      throw err;
-    }
-    orders = res;
+  orders = dbo.collection('orders');
+  console.log(orders);
+  if (orders) {
     console.log(`Listening on ${PORT}...`);
     app.listen(PORT);
-  });
+  } else {
+    dbo.createCollection('orders', function(err, res) {
+      if (err) { 
+        throw err;
+      }
+      orders = res;
+      console.log(`Listening on ${PORT}...`);
+      app.listen(PORT);
+    });
+  }
 });
 
 /**** Helper functions ******/
