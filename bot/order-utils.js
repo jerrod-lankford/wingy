@@ -34,6 +34,10 @@ const ADD_TO_CART_SELECTOR = '[datatest="itemDetails-add-to-cart-button"]';
 
 const DELIVERY_SELECTOR = '//*[contains(text(),"Delivery")]';
 
+const HEIGHT = 1000;
+
+const WIDTH = 1600;
+
 module.exports.order = async function(everyone) {
   const page = await start();
 
@@ -59,9 +63,9 @@ module.exports.order = async function(everyone) {
 
 /* Helper functions */
 async function start() {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ headless: false, args: [`--window-size=${WIDTH},${HEIGHT}`]});
   const page = await browser.newPage();
-  await page.setViewport({ width: 1600, height: 768 });
+  await page.setViewport({ width: WIDTH, height: HEIGHT });
   await page.goto(MENU);
   await goToOrderPage(page);
   return page;
