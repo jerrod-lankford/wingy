@@ -17,8 +17,8 @@ async function main() {
       'Clearing orders. This may take a while to wake up heroku dyno...'
     );
 
-    // await utils.clearOrders();
-    // await bot.postOrderForm();
+    await utils.clearOrders();
+    await bot.postOrderForm();
   }
 
   // Pause until everyone is done ordering
