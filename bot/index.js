@@ -28,7 +28,7 @@ async function main() {
 
   // Log Orders
   console.log(chalk.bgRed('Orders'));
-  console.table(everyone, ['time', 'name', 'size', 'price', 'sauces', 'dressing', 'fries', 'complete']);
+  console.table(everyone, ['name', 'size', 'type', 'price', 'sauces', 'dressing', 'fries', 'complete']);
 
   // Validate everyones order is complete
   if (everyone.some(o => !o.complete)) {
@@ -38,7 +38,9 @@ async function main() {
   // Order
   const page = await orderUtils.order(everyone);
 
-  const tax = parseFloat(readlineSync.question('Enter calculated tax:\n')); 
+  await orderUtils.logIn(page);
+
+  const tax = await orderUtils.getTax(page);
 
   const payments = paymentUtils.generatePayment(everyone, tax);
 
@@ -47,6 +49,7 @@ async function main() {
   console.table(payments);
   let total = 0;
   payments.forEach(p => (total += p.total));
+  console.log(`Total tax: ${tax}`);
   console.log(chalk.bgRed(`total: ${total}`));
 
   // Pause until I've actually placed the order
@@ -59,6 +62,8 @@ async function main() {
   // await bot.postOrderPreperation(page);
 
   await bot.postPaymentInfo(payments);
+
+  console.log(chalk.bgCyan("Finished. Thanks for choosing wingy!"));
 }
 
 main();

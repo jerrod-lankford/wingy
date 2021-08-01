@@ -1,7 +1,7 @@
-Fix everything that happens after order
 Consider sending thread id to the server
-make it log in for me
-grab tax from receipt div
 Pause for tracking url entry
+Fix everything that happens after order
+
+eventually:
 Add other main menu items
 Add other side menu items

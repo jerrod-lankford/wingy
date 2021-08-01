@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
-const utils = require('./utils.js');
-const { timeout } = require('./utils');
+const { timeout, fryCalc } = require('./utils');
+const secret = require('./secret.json');
+const configuration = require('./configuration.json');
 
 const MENU = 'https://order.wingsover.com/';
 
@@ -34,7 +35,23 @@ const ADD_TO_CART_SELECTOR = '[datatest="itemDetails-add-to-cart-button"]';
 
 const DELIVERY_SELECTOR = '//*[contains(text(),"Delivery")]';
 
-const HEIGHT = 900;
+const CART_SELECTOR = '[datatest="cart-icon"]';
+
+const CHECKOUT_SELECTOR = '[datatest="cart-footer-log-in"]';
+
+const CONTINUE_CHECKOUT_SELECTOR = '[datatest="cart-footer-continue-checkout"]';
+
+const EMAIL_SELECTOR = 'input[name="email"]';
+
+const PASSWORD_SELECTOR = 'input[name="password"]';
+
+const CART_LOGIN = 'button.cart-login-step-1';
+
+const CART_LOGIN_2 = 'button.cart-login-step-2';
+
+const TAX_SELECTOR = '//div[span//text() = "Tax"]/span[2]';
+
+const HEIGHT = 800;
 
 const WIDTH = 1600;
 
@@ -61,9 +78,26 @@ module.exports.order = async function(everyone) {
   return page;
 };
 
+module.exports.logIn = async function(page) {
+  await waitThenClick(page, CART_SELECTOR);
+  await waitThenClick(page, CHECKOUT_SELECTOR);
+  await waitThenType(page, EMAIL_SELECTOR, configuration.email);
+  await waitThenClick(page, CART_LOGIN);
+  await waitThenType(page, PASSWORD_SELECTOR, secret.password);
+  await waitThenClick(page, CART_LOGIN_2);
+  await waitThenClick(page, CONTINUE_CHECKOUT_SELECTOR);
+};
+
+module.exports.getTax = async function(page) {
+  await page.waitForXPath(TAX_SELECTOR);
+  const elements = await page.$x(TAX_SELECTOR);
+  const text = await page.evaluate(el => el.textContent, elements[0]);
+  return parseFloat(text.replace('$', ''));
+}
+
 /* Helper functions */
 async function start() {
-  const browser = await puppeteer.launch({ headless: false, args: [`--window-size=${WIDTH},${HEIGHT}`]});
+  const browser = await puppeteer.launch({ headless: false, args: [`--window-size=${WIDTH},${HEIGHT+100}`]});
   const page = await browser.newPage();
   await page.setViewport({ width: WIDTH, height: HEIGHT });
   await page.goto(MENU);
@@ -89,12 +123,17 @@ async function waitThenClick(page, selector, isXpath) {
   }
 }
 
+async function waitThenType(page, selector, text) {
+  await page.waitForSelector(selector);
+  await page.type(selector, text);
+}
+
 function createFryOrders(everyone, page) {
   // Number of people that want frys
   const fryPeeps = everyone.reduce((accum, curr) => {
     return curr.fries === 'Yes' ? ++accum : accum;
   }, 0);
-  const fries = utils.fryCalc(fryPeeps);
+  const fries = fryCalc(fryPeeps);
   const orders = [];
   const rubs = [];
 
