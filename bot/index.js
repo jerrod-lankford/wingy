@@ -53,7 +53,7 @@ async function main() {
   console.log(chalk.bgRed(`total: ${total}`));
 
   // Pause until I've actually placed the order
-  readlineSync.question('Please press enter when order is placed\n');  // Pause until everyone is done ordering
+  readlineSync.question('Please press enter when order is placed\n');
 
   await bot.atMentionEveryone(everyone);
 
@@ -63,7 +63,12 @@ async function main() {
 
   await bot.postPaymentInfo(payments);
 
-  console.log(chalk.bgCyan("Finished. Thanks for choosing wingy!"));
+  await utils.timeout(1000);
+
+  const trackerUrl = readlineSync.question('Enter track url:\n');  // Pause until everyone is done ordering
+  await bot.postTrackerUrl(trackerUrl);
+
+  console.log(chalk.cyan.inverse("Finished. Thanks for choosing wingy!"));
 }
 
 main();

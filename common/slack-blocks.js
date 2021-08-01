@@ -415,7 +415,7 @@ module.exports.slackBlocks = [
             text: "Bleu Cheese",
             emoji: true
           },
-          value: "Bleu Cheese"
+          value: "Blue Cheese"
         },
         {
           text: {

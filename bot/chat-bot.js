@@ -51,7 +51,7 @@ module.exports.ChatBot = class ChatBot {
   }
 
   async postPaymentInfo(payments) {
-    payments.forEach(async p => {
+    await payments.forEach(async p => {
       const response = await this.web.conversations.open({ users: p.user_id });
       const channel = response.channel.id;
       const text = `Hi ${p.name}, you owe *${format(p.total)}*.\n ${CONFIG.paymentInfo.replace('{$total}', p.total.toFixed(2))}
@@ -76,6 +76,11 @@ module.exports.ChatBot = class ChatBot {
     if (text) {
       await postMessage(this.web, { text, thread_ts });
     }
+  }
+
+  async postTrackerUrl(url) {
+    const { thread_ts } = this;
+    await postMessage(this.web, {text: `:chicken: :wings: tracker: ${url}`, thread_ts });
   }
 };
 
