@@ -54,9 +54,14 @@ module.exports.ChatBot = class ChatBot {
     payments.forEach(async p => {
       const response = await this.web.conversations.open({ users: p.user_id });
       const channel = response.channel.id;
-      const text = `Hi ${p.name}, you owe *${format(p.total)}*.\n` + 
-        `Cost Breakdown - Price: ${format(p.price)} + Fries: ${format(p.fries)} + Tip/Delivery: ${format(p.tipDelivery)} + Tax: ${format(p.tax)}\n` +
-        CONFIG.paymentInfo.replace('{$total}', p.total.toFixed(2));
+      const text = `Hi ${p.name}, you owe *${format(p.total)}*.
+      ${CONFIG.paymentInfo.replace('{$total}', p.total.toFixed(2))}
+        *Cost Breakdown*
+         Price: ${format(p.price)}
+         Fries: ${format(p.fries)}
+         Tax: ${format(p.tax)}
+         Tip: ${format(p.tip)}
+         Delivery: ${format(p.delivery)}`;
       await postMessage(this.web, { text, channel });
     });
   }

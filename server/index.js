@@ -3,6 +3,7 @@ const request = require('request');
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
 const { ACTIONS } = require('../common/slack-blocks.js');
+const { validateOrder } = require('./order-utils');
 
 const url = process.env.MONGODB_URI || 'mongodb://localhost:27017/wingy';
 const dbName = url.substr(url.lastIndexOf('/') + 1).split('?')[0];
@@ -37,7 +38,6 @@ MongoClient.connect(url, function(err, db) {
   if (err) throw err;
   const dbo = db.db(dbName);
   orders = dbo.collection('orders');
-  console.log(orders);
   if (orders) {
     console.log(`Listening on ${PORT}...`);
     app.listen(PORT);
@@ -150,30 +150,6 @@ function parseSelect(action) {
 
 function parseMultiselect(action) {
   return action.selected_options.map(option => option.value);
-}
-
-function validateOrder(order) {
-  if (!order || !order.price || 
-    !order.size || !order.sauces || !order.dressing) {
-    return `:x: Please fill in required fields: Order, sauces, and dressing.`;
-  }
-
-  if ((order.size === '2 Tenders' || order.size === '4 Tenders' || order.size === '6 Wings') && order.sauces.length > 1) {
-    return `:x: With ${order.size} you are only allowed to have 1 sauce.`;
-  } else if ((order.size === '6 Tenders' || order.size === '8 Tenders' || order.size === '9 Wings' || order.size === '12 wings') && order.sauces.length > 2) {
-    return `:x: With ${order.size} you are only allowed to have up to 2 sauces.`;
-  }
-
-  if (order.completed_before) {
-    text = `:white_check_mark: Order successfully updated: ${order.size} - ${order.sauces.join(', ')} - ${order.dressing} - ${order.fries || 'No'} fries!`;
-    order.complete = true;
-  } else {
-    text = `:white_check_mark: Order placed: ${order.size} - ${order.sauces.join(', ')} - ${order.dressing} - ${order.fries || 'No'} fries!\nIf you change your mind you can order again to update your current order.`;
-    order.complete = true;
-    order.completed_before = true;
-  }
-
-  return text;
 }
 
 function sendMessage(responseURL, text) {

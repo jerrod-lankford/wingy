@@ -11,9 +11,10 @@ module.exports.generatePayment = function(everyone, totalTax) {
   return everyone.map(person => {
     const { name, price, user_id } = person;
     const fries = calcFries(everyone, person).pp;
-    const tax = calcIndividualTax(subTotal, price, fries, totalTax);
-    const tipDelivery = calcTD(everyone);
-    const total = price + fries + tax + tipDelivery;
+    const tax = calcTax(subTotal, price, fries, totalTax);
+    const tip = calcTip(price, fries);
+    const delivery = calcDelivery(everyone.length);
+    const total = price + fries + tax + tip + delivery;
 
     return {
       name,
@@ -21,7 +22,8 @@ module.exports.generatePayment = function(everyone, totalTax) {
       price,
       fries,
       tax,
-      tipDelivery,
+      tip,
+      delivery,
       total
     };
   });
@@ -43,14 +45,19 @@ function calcFries(everyone, person) {
   return { total, pp };
 }
 
-function calcTD(everyone) {
-  const preTaxTotal = calcSubTotal(everyone);
-
-  return (
-    (preTaxTotal * TIP_PERCENT + DELIVERY) /
-    everyone.length
-  );
+function calcTip(price, fries) {
+  return (price + fries) * TIP_PERCENT;
 }
+
+function calcDelivery(numPeople) {
+  return DELIVERY / numPeople;
+}
+
+function calcTax(subtotal, price, fries, tax) {
+  const taxPercent = (price + fries) / subtotal;
+  return tax * taxPercent;
+}
+
 
 function calcSubTotal(everyone) {
   const fryCost = calcFries(everyone).total;
@@ -60,9 +67,4 @@ function calcSubTotal(everyone) {
   }, fryCost);
 
   return subTotal;
-}
-
-function calcIndividualTax(subTotal, price, fries, tax) {
-  const taxPercent = subTotal / (price + fries);
-  return tax * taxPercent;
 }

@@ -34,7 +34,7 @@ const ADD_TO_CART_SELECTOR = '[datatest="itemDetails-add-to-cart-button"]';
 
 const DELIVERY_SELECTOR = '//*[contains(text(),"Delivery")]';
 
-const HEIGHT = 1000;
+const HEIGHT = 900;
 
 const WIDTH = 1600;
 
