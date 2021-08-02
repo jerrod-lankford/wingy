@@ -38,13 +38,13 @@ app.post('/api/clear', (req, res) => {
 });
 
 app.post('/api/threads', jsonParser, (req, res) => {
-  const { thread_id } = req.body;
+  const { thread_ts } = req.body;
   console.log(req.body);
   threads.findOne({}).then(result => {
     if (result) {
       res.status(400).send({error: 'There was an error creating the thread, a thread already exists'});
     } else {
-      threads.insertOne({ thread_id }, function(err) {
+      threads.insertOne({ thread_ts }, function(err) {
         if (err) res.status(400).send({error: 'Error creating thread'});
         console.log('new thread created');
         res.status(200).end();
