@@ -3,6 +3,7 @@ const axios = require('axios');
 const BASE_URL = 'https://wingy.herokuapp.com';
 const ORDER_URL = `${BASE_URL}/api/orders`;
 const CLEAR_ORDER_URL = `${BASE_URL}/api/clear`;
+const THREAD_URL = `${BASE_URL}/api/threads`;
 
 // 2 people to a small, 3 to a large
 module.exports.fryCalc = function(numPeople) {
@@ -42,4 +43,21 @@ module.exports.clearOrders = async function() {
 
 module.exports.timeout = async function timeout(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+module.exports.getCurrentThread = async function() {
+  const response = await axios.get(THREAD_URL);
+  if (response.data) {
+    return response.data;
+  } else {
+    throw new Error('Error making xhr to get thread.');
+  }
+};
+
+module.exports.createNewThread = async function(thread_ts) {
+  const response = await axios.post(THREAD_URL, {thread_ts});
+  if (response.status !== 200) {
+    throw new Error(`Error creating thread ${response.status}`);
+  }
+  return response;
 }

@@ -3,18 +3,20 @@ const request = require('request');
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
 const { ACTIONS } = require('../common/slack-blocks.js');
-const { validateOrder } = require('./order-utils');
+const { validateOrder, validateThread } = require('./order-utils');
 
 const url = process.env.MONGODB_URI || 'mongodb://localhost:27017/wingy';
 const dbName = url.substr(url.lastIndexOf('/') + 1).split('?')[0];
 const PORT = process.env.PORT || 3000;
 const app = express();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
+const jsonParser = bodyParser.json();
 
-let orders;
+// Collections
+let orders, threads;
 
 app.post('/slack', urlencodedParser, async (req, res) => {
-  var actionJSONPayload = JSON.parse(req.body.payload);
+  const actionJSONPayload = JSON.parse(req.body.payload);
   await parseAction(actionJSONPayload);
   res.status(200).end();
 });
@@ -26,31 +28,50 @@ app.get('/api/orders', async (req, res) => {
 });
 
 app.post('/api/clear', (req, res) => {
-  const result = orders.remove({});
-  if (!result.writeError) {
+  const result = orders.deleteMany({});
+  const result2 = threads.deleteMany({});
+  if (!result.writeError && !result2.writeError) {
     res.status(200).end();
   } else {
-    res.status(400).send({error: result.writeError.errmsg}).end();
+    res.status(400).send({error: 'There was an error clearing the threads and orders'}).end();
   }
 });
 
-MongoClient.connect(url, function(err, db) {
-  if (err) throw err;
-  const dbo = db.db(dbName);
-  orders = dbo.collection('orders');
-  if (orders) {
-    console.log(`Listening on ${PORT}...`);
-    app.listen(PORT);
-  } else {
-    dbo.createCollection('orders', function(err, res) {
-      if (err) { 
-        throw err;
-      }
-      orders = res;
-      console.log(`Listening on ${PORT}...`);
-      app.listen(PORT);
-    });
-  }
+app.post('/api/threads', jsonParser, (req, res) => {
+  const { thread_id } = req.body;
+  console.log(req.body);
+  threads.findOne({}).then(result => {
+    if (result) {
+      res.status(400).send({error: 'There was an error creating the thread, a thread already exists'});
+    } else {
+      threads.insertOne({ thread_id }, function(err) {
+        if (err) res.status(400).send({error: 'Error creating thread'});
+        console.log('new thread created');
+        res.status(200).end();
+      });
+    }
+  });
+});
+
+app.get('/api/threads', (req, res) => {
+  threads.findOne({}).then(result => {
+    res.json(result).end();
+  });
+});
+
+let dbo;
+
+// Create collections and start the server
+connect().then(result => {
+  dbo = result;
+  return getOrCreateCollection(dbo, 'orders');
+}).then(collection => {
+  orders = collection;
+  return getOrCreateCollection(dbo, 'threads')
+}).then(collection => {
+  threads = collection;
+  console.log(`Listening on ${PORT}...`);
+  app.listen(PORT);
 });
 
 /**** Helper functions ******/
@@ -80,7 +101,8 @@ async function parseAction(payload) {
       order.fries = parseSelect(action);
       break;
     case ACTIONS.ORDER:
-      text = validateOrder(order);
+      text = await validateThread(threads);
+      text = text || validateOrder(order);
       break;
     default:
       throw new Error(`Unknown action id ${action}`);
@@ -169,5 +191,29 @@ function sendMessage(responseURL, text) {
     if (error) {
       console.log(`error sending validation message: ${error}`);
     }
+  });
+}
+
+function connect() {
+  return new Promise((resolve, reject) => {
+    MongoClient.connect(url, function(err, db) {
+      if (err) reject(err);
+      const dbo = db.db(dbName);
+      resolve(dbo);
+    });
+  });
+}
+
+function getOrCreateCollection(dbo, name) {
+  return new Promise((resolve, reject) => {
+      const collection  = dbo.collection(name);
+      if (collection) {
+        resolve(collection);
+      } else {
+        dbo.createCollection(name, function(err, res) {
+          if (err) reject(err);
+          resolve(res);
+        });
+      }
   });
 }

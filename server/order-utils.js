@@ -34,3 +34,12 @@ module.exports.validateOrder = function validateOrder(order) {
   
     return text;
 };
+
+module.exports.validateThread = async function(threads) {
+  const thread = await threads.findOne({});
+  if (!thread) {
+    return  ':x: There is no active order. Perhaps you missed the boat?';
+  }
+
+  return null;
+}

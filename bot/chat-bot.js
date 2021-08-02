@@ -25,7 +25,7 @@ module.exports.ChatBot = class ChatBot {
       blocks: slackBlocks
     });
     this.thread_ts = result.ts;
-    console.log(chalk.bgMagenta(`Thread id for recovery: ${this.thread_ts}`));
+    return result.ts;
   }
 
   async atMentionEveryone(everyone) {

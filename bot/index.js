@@ -9,16 +9,14 @@ async function main() {
   // Slackbot client
   const bot = new ChatBot();
 
-  // If we have to bail this allows us to pass in a thread id to resume ordering in the same slack thrad
-  if (process.env.THREAD_TS) {
-    bot.setThreadTs(process.env.THREAD_TS);
-  } else {
-    console.log(
-      'Clearing orders. This may take a while to wake up heroku dyno...'
-    );
+  console.log('Checking for current thread. This may take a while to wake up heroku dyno...');
+  let thread_ts = utils.getCurrentThread();
 
-    await utils.clearOrders();
-    await bot.postOrderForm();
+  if (thread_ts) {
+    bot.setThreadTs(thread_ts);
+  } else {
+    thread_ts = await bot.postOrderForm();
+    utils.createNewThread(thread_ts);
   }
 
   // Pause until everyone is done ordering
@@ -67,6 +65,8 @@ async function main() {
 
   const trackerUrl = readlineSync.question('Enter track url:\n');  // Pause until everyone is done ordering
   await bot.postTrackerUrl(trackerUrl);
+
+  await utils.clearOrders();
 
   console.log(chalk.cyan.inverse("Finished. Thanks for choosing wingy!"));
 }
