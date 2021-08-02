@@ -10,13 +10,15 @@ async function main() {
   const bot = new ChatBot();
 
   console.log('Checking for current thread. This may take a while to wake up heroku dyno...');
-  let thread_ts = utils.getCurrentThread();
+  let thread_ts = await utils.getCurrentThread();
 
   if (thread_ts) {
+    console.log('Resuming previous order.');
     bot.setThreadTs(thread_ts);
   } else {
     thread_ts = await bot.postOrderForm();
-    utils.createNewThread(thread_ts);
+    console.log(`Starting a new order with ${thread_ts}`);
+    await utils.createNewThread(thread_ts);
   }
 
   // Pause until everyone is done ordering

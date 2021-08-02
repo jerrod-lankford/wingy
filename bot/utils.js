@@ -47,11 +47,11 @@ module.exports.timeout = async function timeout(ms) {
 
 module.exports.getCurrentThread = async function() {
   const response = await axios.get(THREAD_URL);
-  if (response.data) {
-    return response.data;
-  } else {
+  if (response.status !== 200) {
     throw new Error('Error making xhr to get thread.');
   }
+
+  return (response.data && response.data.thread_ts) || null;
 };
 
 module.exports.createNewThread = async function(thread_ts) {
