@@ -58,7 +58,7 @@ async function main() {
 
   await bot.atMentionEveryone(everyone);
 
-  // await bot.postReceipt(page);
+  await bot.postReceipt(page);
 
   await bot.postOrderPreperation(page);
 
