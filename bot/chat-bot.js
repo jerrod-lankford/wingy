@@ -6,9 +6,8 @@ const chalk = require('chalk');
 const CONFIG = require('./configuration.json');
 const { timeout } = require('./utils');
 
-const RECEIPT_SELECTOR = '#order-tracker-order-slip';
-const ORDER_TRACKER_CONTAINER_SELECTOR = '#order-tracker-container';
-const ORDER_PREPERATION_SELECTOR = '#order-tracker-overlay';
+const RECEIPT_SELECTOR = '//div[contains(concat(" ",normalize-space(@class)," ")," purchase-confirmation ")]//img[@alt="confirmation Image"]/following-sibling::div';
+const ESTIMATED_DELIVERY_SELECTOR = 'div.purchase-confirmation [data-value="title1_accentDark"]';
 
 module.exports.ChatBot = class ChatBot {
   constructor() {
@@ -67,14 +66,14 @@ module.exports.ChatBot = class ChatBot {
 
   async postOrderPreperation(page) {
     const { thread_ts } = this;
-    await page.waitForSelector(ORDER_TRACKER_CONTAINER_SELECTOR);
+    await page.waitForSelector(ESTIMATED_DELIVERY_SELECTOR);
     const text = await page.evaluate(selector => {
-      const orderPrep = document.querySelector(selector);
-      return orderPrep && orderPrep.textContent;
-    }, ORDER_PREPERATION_SELECTOR);
+      const estimated = document.querySelector(selector);
+      return estimated && estimated.textContent;
+    }, ESTIMATED_DELIVERY_SELECTOR);
 
     if (text) {
-      await postMessage(this.web, { text, thread_ts });
+      await postMessage(this.web, { text: `Estimated Delivery: ${text}`, thread_ts });
     }
   }
 

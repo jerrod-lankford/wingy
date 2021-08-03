@@ -18,6 +18,7 @@ async function main() {
   } else {
     thread_ts = await bot.postOrderForm();
     console.log(`Starting a new order with ${thread_ts}`);
+    await utils.clearOrders();
     await utils.createNewThread(thread_ts);
   }
 
@@ -59,16 +60,16 @@ async function main() {
 
   // await bot.postReceipt(page);
 
-  // await bot.postOrderPreperation(page);
+  await bot.postOrderPreperation(page);
 
   await bot.postPaymentInfo(payments);
+
+  await utils.clearThread();
 
   await utils.timeout(1000);
 
   const trackerUrl = readlineSync.question('Enter track url:\n');  // Pause until everyone is done ordering
   await bot.postTrackerUrl(trackerUrl);
-
-  await utils.clearOrders();
 
   console.log(chalk.cyan.inverse("Finished. Thanks for choosing wingy!"));
 }

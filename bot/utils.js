@@ -2,7 +2,6 @@ const axios = require('axios');
 
 const BASE_URL = 'https://wingy.herokuapp.com';
 const ORDER_URL = `${BASE_URL}/api/orders`;
-const CLEAR_ORDER_URL = `${BASE_URL}/api/clear`;
 const THREAD_URL = `${BASE_URL}/api/threads`;
 
 // 2 people to a small, 3 to a large
@@ -34,9 +33,17 @@ module.exports.getOrders = async function() {
 };
 
 module.exports.clearOrders = async function() {
-  const response = await axios.post(CLEAR_ORDER_URL);
+  const response = await axios.delete(ORDER_URL);
   if (response.status !== 200) {
     throw new Error(`Error clearing orders: ${response.status}`);
+  }
+  return response;
+};
+
+module.exports.clearThread = async function() {
+  const response = await axios.delete(THREAD_URL);
+  if (response.status !== 200) {
+    throw new Error(`Error clearing thread: ${response.status}`);
   }
   return response;
 };

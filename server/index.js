@@ -27,13 +27,12 @@ app.get('/api/orders', async (req, res) => {
   res.status(200).send(allOrders).end();
 });
 
-app.post('/api/clear', (req, res) => {
+app.delete('/api/orders', (req, res) => {
   const result = orders.deleteMany({});
-  const result2 = threads.deleteMany({});
-  if (!result.writeError && !result2.writeError) {
+  if (!result.writeError) {
     res.status(200).end();
   } else {
-    res.status(400).send({error: 'There was an error clearing the threads and orders'}).end();
+    res.status(400).send({error: result.writeError.errmsg}).end();
   }
 });
 
@@ -57,6 +56,15 @@ app.get('/api/threads', (req, res) => {
   threads.findOne({}).then(result => {
     res.json(result).end();
   });
+});
+
+app.delete('/api/threads', (req, res) => {
+  const result = threads.deleteMany({});
+  if (!result.writeError) {
+    res.status(200).end();
+  } else {
+    res.status(400).send({error: result.writeError.errmsg}).end();
+  }
 });
 
 let dbo;
