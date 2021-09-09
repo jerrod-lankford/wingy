@@ -4,6 +4,8 @@ const BASE_URL = 'https://wingy.herokuapp.com';
 const ORDER_URL = `${BASE_URL}/api/orders`;
 const THREAD_URL = `${BASE_URL}/api/threads`;
 
+module.exports.BASE_URL = BASE_URL;
+
 // 2 people to a small, 3 to a large
 module.exports.fryCalc = function(numPeople) {
   let large = Math.floor(numPeople / 3);

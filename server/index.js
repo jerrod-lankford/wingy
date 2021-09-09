@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
 const { ACTIONS } = require('../common/slack-blocks.js');
 const { validateOrder, validateThread } = require('./order-utils');
+const path = require('path');
 
 const url = process.env.MONGODB_URI || 'mongodb://localhost:27017/wingy';
 const dbName = url.substr(url.lastIndexOf('/') + 1).split('?')[0];
@@ -65,6 +66,10 @@ app.delete('/api/threads', (req, res) => {
   } else {
     res.status(400).send({error: result.writeError.errmsg}).end();
   }
+});
+
+app.get('/receipt.png', (req, res) => {
+  res.sendFile(path.join(__dirname, '../receipt.png'));
 });
 
 let dbo;
