@@ -9,6 +9,11 @@ async function main() {
   // Slackbot client
   const bot = new ChatBot();
 
+  const pord = readlineSync.question('1. Delivery (default)\n2. Pickup\n');
+  const delivery = pord !== "2";
+
+  console.log(`Staring a ${delivery ? 'delivery' : 'pickup'} order`);
+
   console.log('Checking for current thread. This may take a while to wake up heroku dyno...');
   let thread_ts = await utils.getCurrentThread();
 
@@ -37,13 +42,13 @@ async function main() {
   }
 
   // Order
-  const page = await orderUtils.order(everyone);
+  const page = await orderUtils.order(everyone, delivery);
 
   await orderUtils.logIn(page);
 
   const tax = await orderUtils.getTax(page);
 
-  const payments = paymentUtils.generatePayment(everyone, tax);
+  const payments = paymentUtils.generatePayment(everyone, tax, delivery);
 
   // Print total for sanity checking
   console.log(chalk.bgRed('Payments'));

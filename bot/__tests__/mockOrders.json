@@ -1,0 +1,86 @@
+{
+    "single order no fries":[
+       {
+          "price":9.99,
+          "fries":"No"
+       }
+    ],
+    "single order with fries":[
+       {
+          "price":9.99,
+          "fries":"Yes"
+       }
+    ],
+    "varying orders":[
+       {
+          "price":12.99,
+          "fries":"Yes"
+       },
+       {
+          "price":6.49,
+          "fries":"No"
+       },
+       {
+          "price":14.49,
+          "fries":"No"
+       },
+       {
+          "price":17.49,
+          "fries":"Yes"
+       }
+    ],
+    "order with large fries":[
+       {
+          "price":9.99,
+          "fries":"Yes"
+       },
+       {
+          "price":12.99,
+          "fries":"Yes"
+       },
+       {
+          "price":5.99,
+          "fries":"Yes"
+       }
+    ],
+    "order with 4 fries":[
+       {
+          "price":9.99,
+          "fries":"Yes"
+       },
+       {
+          "price":12.99,
+          "fries":"Yes"
+       },
+       {
+          "price":9.99,
+          "fries":"Yes"
+       },
+       {
+          "price":12.99,
+          "fries":"Yes"
+       }
+    ],
+    "order with 5 fries":[
+       {
+          "price":9.99,
+          "fries":"Yes"
+       },
+       {
+          "price":12.99,
+          "fries":"Yes"
+       },
+       {
+          "price":9.99,
+          "fries":"Yes"
+       },
+       {
+          "price":12.99,
+          "fries":"Yes"
+       },
+       {
+          "price":12.99,
+          "fries":"Yes"
+       }
+    ]
+ }

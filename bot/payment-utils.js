@@ -5,15 +5,20 @@ const LARGE_FRY = 3.99;
 const TIP_PERCENT = 0.15; // Hardcoded 15% tip, also hardcoded in order utils
 const DELIVERY = 2;
 
-module.exports.generatePayment = function(everyone, totalTax) {
+module.exports.generatePayment = function(everyone, totalTax, isDelivery) {
   const subTotal = calcSubTotal(everyone);
 
   return everyone.map(person => {
     const { name, price, user_id } = person;
     const fries = calcFries(everyone, person).pp;
     const tax = calcTax(subTotal, price, fries, totalTax);
-    const tip = calcTip(price, fries);
-    const delivery = calcDelivery(everyone.length);
+    let tip = 0, delivery = 0;
+
+    if (isDelivery) {
+      // Im not being cheap, theres literally no way to tip for pickup
+      tip = calcTip(price, fries);
+      delivery = calcDelivery(everyone.length);
+    }
     const total = price + fries + tax + tip + delivery;
 
     return {

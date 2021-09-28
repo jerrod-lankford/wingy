@@ -1,112 +1,32 @@
 const { generatePayment } = require('../payment-utils');
+const orders = require('./mockOrders.json');
 
-describe('generate payment', () => {
-    it('tests single order no fries', () => {
-        const everyone = [{
-            price: 9.99,
-            fries: 'No'
-        }];
-
-        const payments = generatePayment(everyone, 2.00);
+describe('generate payment for delivery', (everyone) => {
+    it.each([
+        ['single order no fries'],
+        ['single order with fries'],
+        ['varying orders'],
+        ['order with large fries'],
+        ['order with 4 fries'],
+        ['order with 5 fries']
+    ])('%s', name => {
+        const everyone = orders[name];
+        const payments = generatePayment(everyone, 2.00, true);
         expect(payments).toMatchSnapshot();
     });
+});
 
-    it('tests single order with fries', () => {
-        const everyone = [{
-            price: 9.99,
-            fries: 'Yes'
-        }];
-
-        const payments = generatePayment(everyone, 3.00);
-        expect(payments).toMatchSnapshot();
-    });
-
-    it('tests varying orders', () => {
-        const everyone = [{
-            price: 12.99,
-            fries: 'Yes'
-        },
-        {
-            price: 6.49,
-            fries: 'No'
-        },
-        {
-            price: 14.49,
-            fries: 'No'
-        },
-        {
-            price: 17.49,
-            fries: 'Yes'
-        }
-    ];
-
-        const payments = generatePayment(everyone, 5.00);
-        expect(payments).toMatchSnapshot();
-    });
-
-    it('tests order with large fries', () => {
-        const everyone = [{
-            price: 9.99,
-            fries: 'Yes'
-        },
-        {
-            price: 12.99,
-            fries: 'Yes'
-        },
-        {
-            price: 5.99,
-            fries: 'Yes'
-        }];
-
-        const payments = generatePayment(everyone, 2.00);
-        expect(payments).toMatchSnapshot();
-    });
-
-    it('tests order with 4 fries', () => {
-        const everyone = [{
-            price: 9.99,
-            fries: 'Yes'
-        },
-        {
-            price: 12.99,
-            fries: 'Yes'
-        },
-        {
-            price: 9.99,
-            fries: 'Yes'
-        },
-        {
-            price: 12.99,
-            fries: 'Yes'
-        }];
-
-        const payments = generatePayment(everyone, 3.00);
-        expect(payments).toMatchSnapshot();
-    });
-
-    it('tests order with 5 fries', () => {
-        const everyone = [{
-            price: 9.99,
-            fries: 'Yes'
-        },
-        {
-            price: 12.99,
-            fries: 'Yes'
-        },
-        {
-            price: 9.99,
-            fries: 'Yes'
-        },
-        {
-            price: 12.99,
-            fries: 'Yes'
-        },
-        {
-            price: 12.99,
-            fries: 'Yes'
-        }];
-
-        const payments = generatePayment(everyone, 3.00);
+describe('generate payment for pickup', (everyone) => {
+    it.each([
+        ['single order no fries'],
+        ['single order with fries'],
+        ['varying orders'],
+        ['order with large fries'],
+        ['order with 4 fries'],
+        ['order with 5 fries']
+    ])('%s', name => {
+        const everyone = orders[name];
+        const payments = generatePayment(everyone, 2.00, false);
         expect(payments).toMatchSnapshot();
     });
 });

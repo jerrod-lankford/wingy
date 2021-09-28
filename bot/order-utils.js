@@ -7,7 +7,7 @@ const MENU = 'https://order.wingsover.com/';
 
 const ADDRESS = '223 South West Street, Raleigh, NC 27603';
 
-const ADDRESS_INPUT_SELECTOR = 'input.input-delivery';
+const ADDRESS_INPUT_SELECTOR = 'input.input-delivery, input.input-pickup';
 
 const ADDRESS_SELECT_SELECTOR = '[datatest="address-1"]';
 
@@ -55,8 +55,8 @@ const HEIGHT = 800;
 
 const WIDTH = 1600;
 
-module.exports.order = async function(everyone) {
-  const page = await start();
+module.exports.order = async function(everyone, delivery) {
+  const page = await start(delivery);
 
   for (const person of everyone) {
     const order = new Order(person, page);
@@ -96,17 +96,21 @@ module.exports.getTax = async function(page) {
 }
 
 /* Helper functions */
-async function start() {
+async function start(delivery) {
   const browser = await puppeteer.launch({ headless: false, args: [`--window-size=${WIDTH},${HEIGHT+100}`]});
   const page = await browser.newPage();
   await page.setViewport({ width: WIDTH, height: HEIGHT });
   await page.goto(MENU);
-  await goToOrderPage(page);
+  await goToOrderPage(page, delivery);
   return page;
 }
 
-async function goToOrderPage(page) {
-  await waitThenClick(page, DELIVERY_SELECTOR, true);
+async function goToOrderPage(page, delivery) {
+  // Pickup is selected by default
+  if (delivery) {
+    await waitThenClick(page, DELIVERY_SELECTOR, true);
+  }
+
   await page.type(ADDRESS_INPUT_SELECTOR, ADDRESS);
   await waitThenClick(page, ADDRESS_SELECT_SELECTOR);
   await waitThenClick(page, ADDRESS_ORDER_SELECTOR);
