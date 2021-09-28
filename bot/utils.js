@@ -4,17 +4,18 @@ const BASE_URL = 'https://wingy.herokuapp.com';
 const ORDER_URL = `${BASE_URL}/api/orders`;
 const THREAD_URL = `${BASE_URL}/api/threads`;
 
-// 2 people to a small, 3 to a large
+// New fry calc. Smalls suck, only good enough for one person but a large can do 3
+// So the new calculation is numPeople mod 3, for how many larges. Then we round up
+// so 5 is 2 larges but also 6 is 2 larges
 module.exports.fryCalc = function(numPeople) {
   let large = Math.floor(numPeople / 3);
   let r = numPeople % 3;
   let small = 0;
 
   if (r === 1) {
-    large !== 0 ? large-- : large;
-    small += numPeople === 1 ? 1 : 2;
+    small++
   } else if (r === 2) {
-    small++;
+    large++;
   }
 
   return {

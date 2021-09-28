@@ -62,7 +62,7 @@ describe('generate payment', () => {
         expect(payments).toMatchSnapshot();
     });
 
-    it('tests order with 2 small fries', () => {
+    it('tests order with 4 fries', () => {
         const everyone = [{
             price: 9.99,
             fries: 'Yes'
@@ -84,7 +84,7 @@ describe('generate payment', () => {
         expect(payments).toMatchSnapshot();
     });
 
-    it('tests order with small and large fries', () => {
+    it('tests order with 5 fries', () => {
         const everyone = [{
             price: 9.99,
             fries: 'Yes'

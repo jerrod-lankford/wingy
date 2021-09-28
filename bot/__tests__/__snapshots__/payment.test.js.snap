@@ -1,45 +1,100 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`generate payment tests order with 2 small fries 1`] = `
+exports[`generate payment tests order with 4 fries 1`] = `
 Array [
   Object {
     "delivery": 0.25,
-    "fries": 1.495,
+    "fries": 1.745,
     "name": undefined,
     "price": 9.99,
-    "tax": 0.6633615710435117,
-    "tip": 1.7227499999999998,
-    "total": 14.12111157104351,
+    "tax": 0.6649981110691348,
+    "tip": 1.7602499999999999,
+    "total": 14.410248111069134,
     "user_id": undefined,
   },
   Object {
     "delivery": 0.25,
-    "fries": 1.495,
+    "fries": 1.745,
     "name": undefined,
     "price": 12.99,
-    "tax": 0.8366384289564881,
-    "tip": 2.1727499999999997,
-    "total": 17.744388428956487,
+    "tax": 0.835001888930865,
+    "tip": 2.21025,
+    "total": 18.030251888930863,
     "user_id": undefined,
   },
   Object {
     "delivery": 0.25,
-    "fries": 1.495,
+    "fries": 1.745,
     "name": undefined,
     "price": 9.99,
-    "tax": 0.6633615710435117,
-    "tip": 1.7227499999999998,
-    "total": 14.12111157104351,
+    "tax": 0.6649981110691348,
+    "tip": 1.7602499999999999,
+    "total": 14.410248111069134,
     "user_id": undefined,
   },
   Object {
     "delivery": 0.25,
-    "fries": 1.495,
+    "fries": 1.745,
     "name": undefined,
     "price": 12.99,
-    "tax": 0.8366384289564881,
-    "tip": 2.1727499999999997,
-    "total": 17.744388428956487,
+    "tax": 0.835001888930865,
+    "tip": 2.21025,
+    "total": 18.030251888930863,
+    "user_id": undefined,
+  },
+]
+`;
+
+exports[`generate payment tests order with 5 fries 1`] = `
+Array [
+  Object {
+    "delivery": 0.2,
+    "fries": 1.596,
+    "name": undefined,
+    "price": 9.99,
+    "tax": 0.5193186911698789,
+    "tip": 1.7379,
+    "total": 14.043218691169878,
+    "user_id": undefined,
+  },
+  Object {
+    "delivery": 0.2,
+    "fries": 1.596,
+    "name": undefined,
+    "price": 12.99,
+    "tax": 0.6537875392200806,
+    "tip": 2.1879,
+    "total": 17.62768753922008,
+    "user_id": undefined,
+  },
+  Object {
+    "delivery": 0.2,
+    "fries": 1.596,
+    "name": undefined,
+    "price": 9.99,
+    "tax": 0.5193186911698789,
+    "tip": 1.7379,
+    "total": 14.043218691169878,
+    "user_id": undefined,
+  },
+  Object {
+    "delivery": 0.2,
+    "fries": 1.596,
+    "name": undefined,
+    "price": 12.99,
+    "tax": 0.6537875392200806,
+    "tip": 2.1879,
+    "total": 17.62768753922008,
+    "user_id": undefined,
+  },
+  Object {
+    "delivery": 0.2,
+    "fries": 1.596,
+    "name": undefined,
+    "price": 12.99,
+    "tax": 0.6537875392200806,
+    "tip": 2.1879,
+    "total": 17.62768753922008,
     "user_id": undefined,
   },
 ]
@@ -80,61 +135,6 @@ Array [
 ]
 `;
 
-exports[`generate payment tests order with small and large fries 1`] = `
-Array [
-  Object {
-    "delivery": 0.2,
-    "fries": 1.3960000000000001,
-    "name": undefined,
-    "price": 9.99,
-    "tax": 0.5180949491885333,
-    "tip": 1.7079000000000002,
-    "total": 13.811994949188534,
-    "user_id": undefined,
-  },
-  Object {
-    "delivery": 0.2,
-    "fries": 1.3960000000000001,
-    "name": undefined,
-    "price": 12.99,
-    "tax": 0.6546033672076444,
-    "tip": 2.1579,
-    "total": 17.398503367207645,
-    "user_id": undefined,
-  },
-  Object {
-    "delivery": 0.2,
-    "fries": 1.3960000000000001,
-    "name": undefined,
-    "price": 9.99,
-    "tax": 0.5180949491885333,
-    "tip": 1.7079000000000002,
-    "total": 13.811994949188534,
-    "user_id": undefined,
-  },
-  Object {
-    "delivery": 0.2,
-    "fries": 1.3960000000000001,
-    "name": undefined,
-    "price": 12.99,
-    "tax": 0.6546033672076444,
-    "tip": 2.1579,
-    "total": 17.398503367207645,
-    "user_id": undefined,
-  },
-  Object {
-    "delivery": 0.2,
-    "fries": 1.3960000000000001,
-    "name": undefined,
-    "price": 12.99,
-    "tax": 0.6546033672076444,
-    "tip": 2.1579,
-    "total": 17.398503367207645,
-    "user_id": undefined,
-  },
-]
-`;
-
 exports[`generate payment tests single order no fries 1`] = `
 Array [
   Object {
@@ -169,12 +169,12 @@ exports[`generate payment tests varying orders 1`] = `
 Array [
   Object {
     "delivery": 0.25,
-    "fries": 1.495,
+    "fries": 1.995,
     "name": undefined,
     "price": 12.99,
-    "tax": 1.3301193755739211,
-    "tip": 2.1727499999999997,
-    "total": 18.237869375573922,
+    "tax": 1.3512173128944993,
+    "tip": 2.24775,
+    "total": 18.833967312894497,
     "user_id": undefined,
   },
   Object {
@@ -182,9 +182,9 @@ Array [
     "fries": 0,
     "name": undefined,
     "price": 6.49,
-    "tax": 0.595959595959596,
+    "tax": 0.5852119026149685,
     "tip": 0.9735,
-    "total": 8.309459595959597,
+    "total": 8.298711902614968,
     "user_id": undefined,
   },
   Object {
@@ -192,19 +192,19 @@ Array [
     "fries": 0,
     "name": undefined,
     "price": 14.49,
-    "tax": 1.3305785123966942,
+    "tax": 1.3065825067628496,
     "tip": 2.1734999999999998,
-    "total": 18.244078512396694,
+    "total": 18.22008250676285,
     "user_id": undefined,
   },
   Object {
     "delivery": 0.25,
-    "fries": 1.495,
+    "fries": 1.995,
     "name": undefined,
     "price": 17.49,
-    "tax": 1.7433425160697884,
-    "tip": 2.84775,
-    "total": 23.82609251606979,
+    "tax": 1.7569882777276824,
+    "tip": 2.9227499999999997,
+    "total": 24.414738277727682,
     "user_id": undefined,
   },
 ]
