@@ -1,8 +1,8 @@
 const secret = require('./secret.json');
 const { WebClient } = require('@slack/web-api');
-const { createReadStream } = require('fs');
 const { slackBlocks } = require('../common/slack-blocks.js');
 const CONFIG = require('./configuration.json');
+const { uploadImage } = require('./utils.js');
 
 const RECEIPT_SELECTOR = '//div[contains(concat(" ",normalize-space(@class)," ")," purchase-confirmation ")]//img[@alt="confirmation Image"]/following-sibling::div';
 const ESTIMATED_DELIVERY_SELECTOR = 'div.purchase-confirmation [data-value="title1_accentDark"]';
@@ -37,13 +37,8 @@ module.exports.ChatBot = class ChatBot {
     const receipt = elements[0];
 
     await receipt.screenshot({path: 'receipt.png'});
-
-    await this.web.files.upload({
-      filename: 'receipt',
-      file: createReadStream('./receipt.png'),
-      channels: CONFIG.channelName,
-      thread_ts: this.thread_ts
-    });
+    const receiptUrl = await uploadImage();
+    await postMessage(this.web, { text: receiptUrl, thread_ts });
   }
 
   async postPaymentInfo(payments) {

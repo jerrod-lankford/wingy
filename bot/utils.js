@@ -1,8 +1,13 @@
 const axios = require('axios');
+const FormData = require('form-data');
+const path = require('path');
+const fs = require('fs');
 
 const BASE_URL = 'https://wingy.herokuapp.com';
 const ORDER_URL = `${BASE_URL}/api/orders`;
 const THREAD_URL = `${BASE_URL}/api/threads`;
+const POST_RECEIPT_URL = `${BASE_URL}/api/receipt`;
+const RECEIPT_URL = `${BASE_URL}/receipt.png`;
 
 // New fry calc. Smalls suck, only good enough for one person but a large can do 3
 // So the new calculation is numPeople mod 3, for how many larges. Then we round up
@@ -68,4 +73,18 @@ module.exports.createNewThread = async function(thread_ts) {
     throw new Error(`Error creating thread ${response.status}`);
   }
   return response;
+}
+
+module.exports.uploadImage = async function() {
+  const form = new FormData();
+  form.append('file', fs.createReadStream(path.join(__dirname, '../receipt.png')));
+
+  const request_config = {
+    headers: {
+      ...form.getHeaders()
+    }
+  };
+
+  await axios.post(POST_RECEIPT_URL, form, request_config);
+  return RECEIPT_URL;
 }

@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
 const { ACTIONS } = require('../common/slack-blocks.js');
 const { validateOrder, validateThread } = require('./order-utils');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const url = process.env.MONGODB_URI || 'mongodb://localhost:27017/wingy';
 const dbName = url.substr(url.lastIndexOf('/') + 1).split('?')[0];
@@ -14,6 +17,10 @@ const jsonParser = bodyParser.json();
 
 // Collections
 let orders, threads;
+
+const upload = multer({
+  dest: __dirname
+});
 
 app.post('/slack', urlencodedParser, async (req, res) => {
   const actionJSONPayload = JSON.parse(req.body.payload);
@@ -65,6 +72,38 @@ app.delete('/api/threads', (req, res) => {
   } else {
     res.status(400).send({error: result.writeError.errmsg}).end();
   }
+});
+
+app.post('/api/receipt',
+  upload.single('file' /* name attribute of <file> element in your form */),
+  (req, res) => {
+    const tempPath = req.file.path;
+    const targetPath = path.join(__dirname, '../receipt.png');
+
+    if (path.extname(req.file.originalname).toLowerCase() === '.png') {
+      fs.rename(tempPath, targetPath, err => {
+        if (err) return handleError(err, res);
+
+        res
+          .status(200)
+          .contentType('text/plain')
+          .end('File uploaded!');
+      });
+    } else {
+      fs.unlink(tempPath, err => {
+        if (err) return handleError(err, res);
+
+        res
+          .status(403)
+          .contentType('text/plain')
+          .end('Only .png files are allowed!');
+      });
+    }
+  }
+);
+
+app.get('/receipt.png', (req, res) => {
+  res.sendFile(path.join(__dirname, '../receipt.png'));
 });
 
 let dbo;
