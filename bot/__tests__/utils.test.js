@@ -25,21 +25,21 @@ describe('fry calc', () => {
     it('tests 3 people', () => {
         const fries = fryCalc(3);
 
-        expect(fries.small).toBe(0);
+        expect(fries.small).toBe(1);
         expect(fries.large).toBe(1);
     });
 
     it('tests 4 people', () => {
         const fries = fryCalc(4);
 
-        expect(fries.small).toBe(1);
-        expect(fries.large).toBe(1);
+        expect(fries.small).toBe(0);
+        expect(fries.large).toBe(2);
     });
 
     it('tests 5 people', () => {
         const fries = fryCalc(5);
 
-        expect(fries.small).toBe(0);
+        expect(fries.small).toBe(1);
         expect(fries.large).toBe(2);
     });
 
@@ -47,6 +47,6 @@ describe('fry calc', () => {
         const fries = fryCalc(6);
 
         expect(fries.small).toBe(0);
-        expect(fries.large).toBe(2);
+        expect(fries.large).toBe(3);
     });
 });

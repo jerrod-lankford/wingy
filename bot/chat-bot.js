@@ -32,6 +32,7 @@ module.exports.ChatBot = class ChatBot {
   }
 
   async postReceipt(page) {
+    const { thread_ts } = this;
     await page.waitForXPath(RECEIPT_SELECTOR);
     const elements = await page.$x(RECEIPT_SELECTOR);
     const receipt = elements[0];

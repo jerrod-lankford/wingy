@@ -9,7 +9,7 @@ const ADDRESS = '223 South West Street, Raleigh, NC 27603';
 
 const ADDRESS_INPUT_SELECTOR = 'input.input-delivery, input.input-pickup';
 
-const ADDRESS_SELECT_SELECTOR = '[datatest="address-1"]';
+const ADDRESS_SELECT_SELECTOR = '//span[text()="223 South West Street, Raleigh, NC 27603, USA"]';
 
 const ADDRESS_ORDER_SELECTOR = '.location-card-order-button-1';
 
@@ -29,7 +29,12 @@ const ORDER_SELECTORS = {
 
 const FRY_RUBS = ['Cajun', 'West Texas Mesquite', 'Lemon Pepper ⭐️', '7 Pepper', 'Garlic Parm ⭐️'];
 
+const TYPE_SELECTOR = '//*[@id="itemDetailsContainer"]//div[text()="{0}"]';
+
 const ITEM_SELECTOR = 'img[alt="{0}"]';
+
+// Hardcoded 15% tip, also hardcoded in payment utils
+const TIP_SELECTOR = '//div[@data-component="CustomTipping"]//legend[contains(text(), "15")]/following-sibling::*';
 
 const ADD_TO_CART_SELECTOR = '[datatest="itemDetails-add-to-cart-button"]';
 
@@ -95,6 +100,11 @@ module.exports.getTax = async function(page) {
   return parseFloat(text.replace('$', ''));
 }
 
+module.exports.tip = async function(page) {
+    await timeout(2000);
+    await waitThenClick(page, TIP_SELECTOR, true);
+}
+
 /* Helper functions */
 async function start(delivery) {
   const browser = await puppeteer.launch({ headless: false, args: [`--window-size=${WIDTH},${HEIGHT+100}`]});
@@ -110,19 +120,20 @@ async function goToOrderPage(page, delivery) {
   if (delivery) {
     await waitThenClick(page, DELIVERY_SELECTOR, true);
   }
-
-  await page.type(ADDRESS_INPUT_SELECTOR, ADDRESS);
-  await waitThenClick(page, ADDRESS_SELECT_SELECTOR);
+  // Stupid website wont show the autocomplete if you type it all at once, so type most of it, then type the last bit with a delay
+  await page.type(ADDRESS_INPUT_SELECTOR, ADDRESS.substr(0, ADDRESS.length-5));
+  await page.type(ADDRESS_INPUT_SELECTOR, ADDRESS.substr(ADDRESS.length - 5), { delay: 300 });
+  await waitThenClick(page, ADDRESS_SELECT_SELECTOR, true);
   await waitThenClick(page, ADDRESS_ORDER_SELECTOR);
 }
 
 async function waitThenClick(page, selector, isXpath) {
   if (isXpath) {
-    await page.waitForXPath(selector);
+    await page.waitForXPath(selector, { visible: true });
     const elements = await page.$x(selector);
     await elements[0].click();
   } else {
-    await page.waitForSelector(selector);
+    await page.waitForSelector(selector, { visible: true });
     await page.click(selector);
   }
 }
@@ -215,8 +226,8 @@ class Order {
 
   async type() {
     const type = this.person.type === 'Fries' ? this.person.size : `${this.person.size} ${this.person.type}`;
-    const selector = ITEM_SELECTOR.replace('{0}', type)
-    await waitThenClick(this.page, selector);
+    const selector = TYPE_SELECTOR.replace('{0}', type)
+    await waitThenClick(this.page, selector, true);
   }
 
   async sauces() {

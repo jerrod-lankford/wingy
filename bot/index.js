@@ -48,6 +48,8 @@ async function main() {
 
   const tax = await orderUtils.getTax(page);
 
+  await orderUtils.tip(page);
+
   const payments = paymentUtils.generatePayment(everyone, tax, delivery);
 
   // Print total for sanity checking
@@ -63,11 +65,11 @@ async function main() {
 
   await bot.atMentionEveryone(everyone);
 
-  await bot.postReceipt(page);
-
   await bot.postOrderPreperation(page);
 
   await bot.postPaymentInfo(payments);
+
+  await bot.postReceipt(page);
 
   await utils.clearThread();
 

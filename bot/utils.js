@@ -9,19 +9,10 @@ const THREAD_URL = `${BASE_URL}/api/threads`;
 const POST_RECEIPT_URL = `${BASE_URL}/api/receipt`;
 const RECEIPT_URL = `${BASE_URL}/receipt.png`;
 
-// New fry calc. Smalls suck, only good enough for one person but a large can do 3
-// So the new calculation is numPeople mod 3, for how many larges. Then we round up
-// so 5 is 2 larges but also 6 is 2 larges
+// Fry calculation, 2 people to a large, 1 gets a small
 module.exports.fryCalc = function(numPeople) {
-  let large = Math.floor(numPeople / 3);
-  let r = numPeople % 3;
-  let small = 0;
-
-  if (r === 1) {
-    small++
-  } else if (r === 2) {
-    large++;
-  }
+  const large = Math.floor(numPeople / 2);
+  const small = numPeople % 2;
 
   return {
     large,
