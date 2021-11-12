@@ -36,7 +36,13 @@ const ITEM_SELECTOR = 'img[alt="{0}"]';
 // Hardcoded 15% tip, also hardcoded in payment utils
 const TIP_SELECTOR = '//div[@data-component="CustomTipping"]//legend[contains(text(), "15")]/following-sibling::*';
 
+const YOUR_CART_SELECTOR = '//span[text()="Your Cart"]';
+
+const RECEIPT_SELECTOR = `${YOUR_CART_SELECTOR}/parent::*/following-sibling::*`;
+
 const ADD_TO_CART_SELECTOR = '[datatest="itemDetails-add-to-cart-button"]';
+
+const PROCEED_TO_PAYMENT_SELECTOR = '.cart-footer-place-order';
 
 const DELIVERY_SELECTOR = '//*[contains(text(),"Delivery")]';
 
@@ -94,6 +100,7 @@ module.exports.logIn = async function(page) {
 };
 
 module.exports.getTax = async function(page) {
+  await waitThenClick(page, PROCEED_TO_PAYMENT_SELECTOR);
   await page.waitForXPath(TAX_SELECTOR);
   const elements = await page.$x(TAX_SELECTOR);
   const text = await page.evaluate(el => el.textContent, elements[0]);
@@ -101,8 +108,18 @@ module.exports.getTax = async function(page) {
 }
 
 module.exports.tip = async function(page) {
-    await timeout(2000);
+    await timeout(2000); // wait for expand animation
     await waitThenClick(page, TIP_SELECTOR, true);
+}
+
+module.exports.grabReceipt = async function(page) {
+  await waitThenClick(page, YOUR_CART_SELECTOR, true);
+  await timeout(2000); // wait for expand animation
+  await page.waitForXPath(RECEIPT_SELECTOR);
+  const elements = await page.$x(RECEIPT_SELECTOR);
+  const receipt = elements[0];
+
+  await receipt.screenshot({path: 'receipt.png'});
 }
 
 /* Helper functions */

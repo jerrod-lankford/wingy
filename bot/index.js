@@ -46,6 +46,8 @@ async function main() {
 
   await orderUtils.logIn(page);
 
+  await orderUtils.grabReceipt(page);
+
   const tax = await orderUtils.getTax(page);
 
   await orderUtils.tip(page);
@@ -69,7 +71,7 @@ async function main() {
 
   await bot.postPaymentInfo(payments);
 
-  await bot.postReceipt(page);
+  await bot.postReceipt();
 
   await utils.clearThread();
 

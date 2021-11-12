@@ -4,7 +4,6 @@ const { slackBlocks } = require('../common/slack-blocks.js');
 const CONFIG = require('./configuration.json');
 const { uploadImage } = require('./utils.js');
 
-const RECEIPT_SELECTOR = '//div[contains(concat(" ",normalize-space(@class)," ")," purchase-confirmation ")]//img[@alt="confirmation Image"]/following-sibling::div';
 const ESTIMATED_DELIVERY_SELECTOR = 'div.purchase-confirmation [data-value="title1_accentDark"]';
 
 module.exports.ChatBot = class ChatBot {
@@ -31,13 +30,8 @@ module.exports.ChatBot = class ChatBot {
     await postMessage(this.web, { text, thread_ts, link_names: true });
   }
 
-  async postReceipt(page) {
+  async postReceipt() {
     const { thread_ts } = this;
-    await page.waitForXPath(RECEIPT_SELECTOR);
-    const elements = await page.$x(RECEIPT_SELECTOR);
-    const receipt = elements[0];
-
-    await receipt.screenshot({path: 'receipt.png'});
     const receiptUrl = await uploadImage();
     await postMessage(this.web, { text: receiptUrl, thread_ts });
   }
