@@ -19,11 +19,11 @@
     "mongodb": "^4.0.1",
     "puppeteer": "^10.1.0",
     "readline-sync": "^1.4.10",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "form-data": "^4.0.0",
+    "multer": "^1.4.3"
   },
   "devDependencies": {
-    "form-data": "^4.0.0",
-    "jest": "^27.0.6",
-    "multer": "^1.4.3"
+    "jest": "^27.0.6"
   }
 }
