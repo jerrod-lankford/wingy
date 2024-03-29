@@ -13,8 +13,9 @@ async function main() {
   const delivery = pord !== "2";
 
   console.log(`Staring a ${delivery ? 'delivery' : 'pickup'} order`);
+  console.log('Waking up heroku dyno. This may take a bit...');
 
-  console.log('Checking for current thread. This may take a while to wake up heroku dyno...');
+  await utils.wakeUp();
   let thread_ts = await utils.getCurrentThread();
 
   if (thread_ts) {
@@ -23,30 +24,29 @@ async function main() {
   } else {
     thread_ts = await bot.postOrderForm();
     console.log(`Starting a new order with ${thread_ts}`);
-    await utils.clearOrders();
     await utils.createNewThread(thread_ts);
   }
 
   // Pause until everyone is done ordering
   readlineSync.question('Please press enter when all orders are in\n');
 
-  let everyone = await utils.getOrders();
+  let everyone = await utils.getOrders(thread_ts);
 
   // Log Orders
   console.log(chalk.bgRed('Orders'));
-  console.table(everyone, ['name', 'size', 'type', 'price', 'sauces', 'dressing', 'fries', 'complete']);
+  console.table(everyone, ['name', 'item', 'price', 'sauces', 'dressing', 'fries', 'complete']);
 
-  // Validate everyones order is complete
+  // Validate everyone's order is complete
   if (everyone.some(o => !o.complete)) {
     throw new Error('There is an incomplete order.');
   }
 
-  // Order
+  // Order  
   const page = await orderUtils.order(everyone, delivery);
 
   await orderUtils.logIn(page);
 
-  await orderUtils.grabReceipt(page);
+  await orderUtils.grabReceipt(page, thread_ts);
 
   const tax = await orderUtils.getTax(page);
 
@@ -67,7 +67,7 @@ async function main() {
 
   await bot.atMentionEveryone(everyone);
 
-  await bot.postOrderPreperation(page);
+  // await bot.postOrderPreparation(page);
 
   await bot.postPaymentInfo(payments);
 

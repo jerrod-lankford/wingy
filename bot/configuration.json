@@ -1,6 +1,8 @@
 {
-  "channelName": "raleigh-want-wingy",
+  "channelName": "jerrod-test",
   "refreshInterval": 15000,
   "paymentInfo": "Accepted Payment methods: :paypal: paypal.me/JerrodLankford/{$total} or :venmo: jerrod-lankford",
-  "email": "jllankfo@ncsu.edu"
+  "address": "223 South West Street, Raleigh, NC 27603",
+  "email": "jerrod.lankford@gmail.com",
+  "baseUrl": "http://localhost:3000"
 }

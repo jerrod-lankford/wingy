@@ -3,7 +3,7 @@ const request = require('request');
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
 const { ACTIONS } = require('../common/slack-blocks.js');
-const { validateOrder, validateThread } = require('./order-utils');
+const { validateOrder, validateThread, getReceiptImage } = require('./order-utils');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -22,20 +22,26 @@ const upload = multer({
   dest: __dirname
 });
 
+app.get('/health', (req, res) => {
+  res.status(200).end();
+});
+
 app.post('/slack', urlencodedParser, async (req, res) => {
   const actionJSONPayload = JSON.parse(req.body.payload);
   await parseAction(actionJSONPayload);
   res.status(200).end();
 });
 
-app.get('/api/orders', async (req, res) => {
-  const cursor = orders.find({});
+app.get('/api/threads/:thread/orders', async (req, res) => {
+  const { thread } = req.params;
+  const cursor = orders.find({ thread });
   const allOrders = await cursor.toArray();
   res.status(200).send(allOrders).end();
 });
 
-app.delete('/api/orders', (req, res) => {
-  const result = orders.deleteMany({});
+app.delete('/api/threads/:thread/orders', (req, res) => {
+  const { thread } = req.params;
+  const result = orders.deleteMany({ thread });
   if (!result.writeError) {
     res.status(200).end();
   } else {
@@ -44,25 +50,25 @@ app.delete('/api/orders', (req, res) => {
 });
 
 app.post('/api/threads', jsonParser, (req, res) => {
-  const { thread_ts } = req.body;
-  console.log(req.body);
-  threads.findOne({}).then(result => {
-    if (result) {
-      res.status(400).send({error: 'There was an error creating the thread, a thread already exists'});
+  const { thread } = req.body;
+  threads.insertOne({ slack_id: thread, active: true }, function(err) {
+    if (err) {
+      res.status(400).send({error: result?.writeError?.errmsg}).end();
     } else {
-      threads.insertOne({ thread_ts }, function(err) {
-        if (err) res.status(400).send({error: 'Error creating thread'});
-        console.log('new thread created');
-        res.status(200).end();
-      });
+      res.status(200).end();
     }
   });
 });
 
-app.get('/api/threads', (req, res) => {
-  threads.findOne({}).then(result => {
-    res.json(result).end();
-  });
+app.put('/api/threads/:thread', jsonParser, (req, res) => {
+  const { thread } = req.params;
+  const { active } = req.body;
+  const result = threads.updateOne({ slack_id: thread }, { $set: { active } });
+  if (!result.writeError) {
+    res.status(200).end();
+  } else {
+    res.status(400).send({error: result.writeError.errmsg}).end();
+  }
 });
 
 app.delete('/api/threads', (req, res) => {
@@ -74,11 +80,13 @@ app.delete('/api/threads', (req, res) => {
   }
 });
 
-app.post('/api/receipt',
-  upload.single('file' /* name attribute of <file> element in your form */),
+// TODO the heroku filesystem is ephemeral, so this will not last forever, find a more persistance way to store receipt images
+app.post('/api/threads/:thread/receipt',
+  upload.single('file'),
   (req, res) => {
+    const { thread } = req.params;
     const tempPath = req.file.path;
-    const targetPath = path.join(__dirname, '../receipt.png');
+    const targetPath = getReceiptImage(thread);
 
     if (path.extname(req.file.originalname).toLowerCase() === '.png') {
       fs.rename(tempPath, targetPath, err => {
@@ -102,8 +110,9 @@ app.post('/api/receipt',
   }
 );
 
-app.get('/receipt.png', (req, res) => {
-  res.sendFile(path.join(__dirname, '../receipt.png'));
+app.get('/api/threads/:thread/receipt.png', (req, res) => {
+  const { thread } = req.params;
+  res.sendFile(getReceiptImage(thread));
 });
 
 let dbo;
@@ -125,7 +134,8 @@ connect().then(result => {
 async function parseAction(payload) {
   const user = payload.user;
   const action = payload.actions[0];
-  const order = await lookupOrCreateOrder(user);
+  const threadTs = payload.message.ts;
+  const order = await lookupOrCreateOrder(user, threadTs);
 
   let text;
   // In case it was complete before, any action will cause it to be uncompleted
@@ -148,7 +158,8 @@ async function parseAction(payload) {
       order.fries = parseSelect(action);
       break;
     case ACTIONS.ORDER:
-      text = await validateThread(threads);
+      const thread = await threads.findOne({slack_id: threadTs});
+      text = validateThread(thread);
       text = text || validateOrder(order);
       break;
     default:
@@ -163,9 +174,9 @@ async function parseAction(payload) {
 }
 
 // Lookup order from mongo or insert a new order
-function lookupOrCreateOrder(user) {
+function lookupOrCreateOrder(user, thread) {
   return new Promise((resolve, reject) => {
-    orders.findOne({ name: user.username }, function(err, result) {
+    orders.findOne({ name: user.username, thread: thread }, function(err, result) {
       if (err) reject(error);
 
       if (result) {
@@ -176,6 +187,7 @@ function lookupOrCreateOrder(user) {
         const order = {
           name: user.username,
           user_id: user.id,
+          thread,
           time: date.toLocaleString()
         };
 
@@ -192,6 +204,7 @@ function lookupOrCreateOrder(user) {
 
 // Update order in mongodb
 function updateOrder(order) {
+  delete order._id;
   return new Promise((resolve, reject) => {
     var query = { name: order.name };
     var values = { $set: {...order}};
@@ -203,12 +216,12 @@ function updateOrder(order) {
   });
 }
 
-// Form return values are Type:Size:Price eg (Boneless:DC-3:6.99)
+// Form return values are Type:Size:Price eg (Tenders:2 Tenders:6.99)
 function parseSize(action) {
   const values = action.selected_option.value.split(':');
   return {
     type: values[0],
-    size: values[1],
+    item: values[1],
     price: parseFloat(values[2])
   };
 }

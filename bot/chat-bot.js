@@ -32,7 +32,7 @@ module.exports.ChatBot = class ChatBot {
 
   async postReceipt() {
     const { thread_ts } = this;
-    const receiptUrl = await uploadImage();
+    const receiptUrl = await uploadImage(thread_ts);
     await postMessage(this.web, { text: receiptUrl, thread_ts });
   }
 
@@ -51,7 +51,7 @@ module.exports.ChatBot = class ChatBot {
     });
   }
 
-  async postOrderPreperation(page) {
+  async postOrderPreparation(page) {
     const { thread_ts } = this;
     await page.waitForSelector(ESTIMATED_DELIVERY_SELECTOR);
     const text = await page.evaluate(selector => {

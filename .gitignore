@@ -1,4 +1,6 @@
 secret.json
 receipt.png
+*-receipt.png
+thread.id
 node_modules/**
 coverage

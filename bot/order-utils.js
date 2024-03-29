@@ -5,16 +5,21 @@ const configuration = require('./configuration.json');
 
 const MENU = 'https://order.wingsover.com/';
 
-const ADDRESS = '223 South West Street, Raleigh, NC 27603';
+const ADDRESS = configuration.address;
+
+const IFRAME_POPUP = "#attentive_overlay iframe"
+
+const DIALOG_CONTAINER = '#page1';
+
+const CLOSE_DIALOG_CONTAINER = '#closeIconContainer'
 
 const ADDRESS_INPUT_SELECTOR = 'input.input-delivery, input.input-pickup';
 
-const ADDRESS_SELECT_SELECTOR = '//span[text()="223 South West Street, Raleigh, NC 27603, USA"]';
+const ADDRESS_SELECT_SELECTOR = `::-p-xpath(//span[text()="${ADDRESS}, USA"])`;
 
-const ADDRESS_ORDER_SELECTOR = '.location-card-order-button-1';
+const ADDRESS_ORDER_SELECTOR = '::-p-xpath(//*[contains(@class,"location-card")]//span[text()="Order"])';
 
 const NO_DRESSING = 'No Dressing';
-
 const ORDER_SELECTORS = {
   '2 Tenders': '.menu-item-1-0 button',
   '4 Tenders': '.menu-item-1-1 button',
@@ -29,28 +34,26 @@ const ORDER_SELECTORS = {
 
 const FRY_RUBS = ['Cajun', 'West Texas Mesquite', 'Lemon Pepper ⭐️', '7 Pepper', 'Garlic Parm ⭐️'];
 
-const TYPE_SELECTOR = '//*[@id="itemDetailsContainer"]//div[text()="{0}"]';
+const TYPE_SELECTOR = '::-p-xpath(//*[@id="itemDetailsContainer"]//div[text()="{0}"])';
 
 const ITEM_SELECTOR = 'img[alt="{0}"]';
 
 // Hardcoded 15% tip, also hardcoded in payment utils
-const TIP_SELECTOR = '//div[@data-component="CustomTipping"]//legend[contains(text(), "15")]/following-sibling::*';
+const TIP_SELECTOR = '::-p-xpath(//div[@data-component="CustomTipping"]//legend[contains(text(), "15")]/following-sibling::*)';
 
-const YOUR_CART_SELECTOR = '//span[text()="Your Cart"]';
+const RECEIPT_SELECTOR = `::-p-xpath(//ul[contains(@class, "checkout-tabs")]/li/div/div[2])`;
 
-const RECEIPT_SELECTOR = `${YOUR_CART_SELECTOR}/parent::*/following-sibling::*`;
+const ADD_TO_CART_SELECTOR = '::-p-xpath(//div[@id="itemDetails"]//span[contains(text(),"Add To Cart")])';
 
-const ADD_TO_CART_SELECTOR = '[datatest="itemDetails-add-to-cart-button"]';
+const PROCEED_TO_PAYMENT_SELECTOR = '::-p-xpath(//span[text()="Proceed to Payment"])';
 
-const PROCEED_TO_PAYMENT_SELECTOR = '.cart-footer-place-order';
+const DELIVERY_SELECTOR = '::-p-xpath(//*[contains(text(),"Delivery")])';
 
-const DELIVERY_SELECTOR = '//*[contains(text(),"Delivery")]';
+const CART_SELECTOR = '::-p-xpath(//span[text()="CART"])';
 
-const CART_SELECTOR = '[datatest="cart-icon"]';
+const YOUR_CART_SELECTOR = '::-p-xpath(//span[text()="Your Cart"])';
 
-const CHECKOUT_SELECTOR = '[datatest="cart-footer-log-in"]';
-
-const CONTINUE_CHECKOUT_SELECTOR = '[datatest="cart-footer-continue-checkout"]';
+const CHECKOUT_SELECTOR = '::-p-xpath(//span[text()="Login to Checkout"])';
 
 const EMAIL_SELECTOR = 'input[name="email"]';
 
@@ -60,7 +63,7 @@ const CART_LOGIN = 'button.cart-login-step-1';
 
 const CART_LOGIN_2 = 'button.cart-login-step-2';
 
-const TAX_SELECTOR = '//div[span//text() = "Tax"]/span[2]';
+const TAX_SELECTOR = '::-p-xpath(//span[text()="Tax"]//ancestor::div/span[2])';
 
 const HEIGHT = 800;
 
@@ -96,38 +99,49 @@ module.exports.logIn = async function(page) {
   await waitThenClick(page, CART_LOGIN);
   await waitThenType(page, PASSWORD_SELECTOR, secret.password);
   await waitThenClick(page, CART_LOGIN_2);
-  await waitThenClick(page, CONTINUE_CHECKOUT_SELECTOR);
 };
 
 module.exports.getTax = async function(page) {
   await waitThenClick(page, PROCEED_TO_PAYMENT_SELECTOR);
-  await page.waitForXPath(TAX_SELECTOR);
-  const elements = await page.$x(TAX_SELECTOR);
-  const text = await page.evaluate(el => el.textContent, elements[0]);
+  await page.waitForSelector(TAX_SELECTOR, { visible: true });
+  const element = await page.waitForSelector(TAX_SELECTOR);
+  const text = await page.evaluate(el => el.textContent, element);
   return parseFloat(text.replace('$', ''));
 }
 
 module.exports.tip = async function(page) {
     await timeout(2000); // wait for expand animation
-    await waitThenClick(page, TIP_SELECTOR, true);
+    await waitThenClick(page, TIP_SELECTOR);
 }
 
-module.exports.grabReceipt = async function(page) {
-  await waitThenClick(page, YOUR_CART_SELECTOR, true);
+module.exports.grabReceipt = async function(page, thread) {
+  await waitThenClick(page, YOUR_CART_SELECTOR);
+  await waitThenClick(page, CART_SELECTOR);
   await timeout(2000); // wait for expand animation
-  await page.waitForXPath(RECEIPT_SELECTOR);
-  const elements = await page.$x(RECEIPT_SELECTOR);
-  const receipt = elements[0];
-
-  await receipt.screenshot({path: 'receipt.png'});
+  const receipt = await page.waitForSelector(RECEIPT_SELECTOR);
+  await receipt.screenshot({path: '../receipt.png'});
 }
 
 /* Helper functions */
+// At the time of writing there is an ad when landing on the page for the first time
+const waitAndClosePopup = async function(page) {
+  try {
+    const  iframePopup = await page.waitForSelector(IFRAME_POPUP);
+    const frame = await iframePopup.contentFrame();
+    await frame.waitForSelector(DIALOG_CONTAINER);
+    await frame.click(CLOSE_DIALOG_CONTAINER);
+    await timeout(1000); // Wait for animation
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 async function start(delivery) {
   const browser = await puppeteer.launch({ headless: false, args: [`--window-size=${WIDTH},${HEIGHT+100}`]});
   const page = await browser.newPage();
   await page.setViewport({ width: WIDTH, height: HEIGHT });
   await page.goto(MENU);
+  await waitAndClosePopup(page);
   await goToOrderPage(page, delivery);
   return page;
 }
@@ -135,24 +149,19 @@ async function start(delivery) {
 async function goToOrderPage(page, delivery) {
   // Pickup is selected by default
   if (delivery) {
-    await waitThenClick(page, DELIVERY_SELECTOR, true);
+    await waitThenClick(page, DELIVERY_SELECTOR);
   }
-  // Stupid website wont show the autocomplete if you type it all at once, so type most of it, then type the last bit with a delay
+  // Stupid website wont show the autocomplete if you type it all at once, so type most of it, then type the last bit with a delay]
+  await page.waitForSelector(ADDRESS_INPUT_SELECTOR);
   await page.type(ADDRESS_INPUT_SELECTOR, ADDRESS.substr(0, ADDRESS.length-5));
   await page.type(ADDRESS_INPUT_SELECTOR, ADDRESS.substr(ADDRESS.length - 5), { delay: 300 });
-  await waitThenClick(page, ADDRESS_SELECT_SELECTOR, true);
+  await waitThenClick(page, ADDRESS_SELECT_SELECTOR);
   await waitThenClick(page, ADDRESS_ORDER_SELECTOR);
 }
 
-async function waitThenClick(page, selector, isXpath) {
-  if (isXpath) {
-    await page.waitForXPath(selector, { visible: true });
-    const elements = await page.$x(selector);
-    await elements[0].click();
-  } else {
-    await page.waitForSelector(selector, { visible: true });
-    await page.click(selector);
-  }
+async function waitThenClick(page, selector) {
+    const element = await page.waitForSelector(selector, { visible: true });
+    await element.click();
 }
 
 async function waitThenType(page, selector, text) {
@@ -174,8 +183,7 @@ function createFryOrders(everyone, page) {
     orders.push(
       new Order(
         {
-          type: 'Fries',
-          size: 'Regular',
+          item: 'Regular Fries',
           sauces: [getSauce(rubs)]
         },
         page
@@ -188,8 +196,7 @@ function createFryOrders(everyone, page) {
     orders.push(
       new Order(
         {
-          type: 'Fries',
-          size: 'Large',
+          item: 'Large Fries',
           sauces: [getSauce(rubs)]
         },
         page
@@ -235,16 +242,14 @@ class Order {
   }
 
   async size() {
-    const order = `${this.person.size} ${this.person.type}`;
-    const selector = ORDER_SELECTORS[order];
+    const selector = ORDER_SELECTORS[this.person.item];
     await waitThenClick(this.page, selector);
     await timeout(1000);
   }
 
   async type() {
-    const type = this.person.type === 'Fries' ? this.person.size : `${this.person.size} ${this.person.type}`;
-    const selector = TYPE_SELECTOR.replace('{0}', type)
-    await waitThenClick(this.page, selector, true);
+    const selector = TYPE_SELECTOR.replace('{0}', this.person.item);
+    await waitThenClick(this.page, selector);
   }
 
   async sauces() {

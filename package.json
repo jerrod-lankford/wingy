@@ -12,16 +12,16 @@
   "license": "ISC",
   "dependencies": {
     "@slack/web-api": "^6.3.0",
-    "axios": "^0.21.1",
+    "axios": "^1.6.8",
     "chalk": "^4.1.2",
     "express": "^4.17.1",
+    "form-data": "^4.0.0",
     "googleapis": "^83.0.0",
     "mongodb": "^4.0.1",
-    "puppeteer": "^10.1.0",
+    "multer": "^1.4.3",
+    "puppeteer": "^22.6.1",
     "readline-sync": "^1.4.10",
-    "request": "^2.88.0",
-    "form-data": "^4.0.0",
-    "multer": "^1.4.3"
+    "request": "^2.88.0"
   },
   "devDependencies": {
     "jest": "^27.0.6"

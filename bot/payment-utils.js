@@ -3,7 +3,7 @@ const utils = require('./utils.js');
 const SMALL_FRY = 2.99;
 const LARGE_FRY = 3.99;
 const TIP_PERCENT = 0.15; // Hardcoded 15% tip, also hardcoded in order utils
-const DELIVERY = 2;
+const DELIVERY = 3.50; // inflations a bitch
 
 module.exports.generatePayment = function(everyone, totalTax, isDelivery) {
   const subTotal = calcSubTotal(everyone);
