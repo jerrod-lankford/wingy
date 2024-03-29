@@ -55,3 +55,16 @@ export const DRESSINGS = [
     'Blue Cheese',
     'No Dressing'
 ];
+
+export const SIDES = {
+    'Fries': {
+        'Regular Fries': 4.49,
+        'Large Fries': 5.49
+    },
+};
+
+export const FRY_RUBS = ['Cajun', 'West Texas Mesquite', 'Lemon Pepper ⭐️', 'Garlic Parm ⭐️'];
+
+// Hardcoded 15% tip
+export const TIP_PERCENT = 0.15;
+export const DELIVERY = 3.50;

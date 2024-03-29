@@ -1,4 +1,4 @@
-import { fryCalc } from '../utils.js';
+import { fryCalc } from '../order-utils.js';
 
 describe('fry calc', () => {
     it('tests 0 people', () => {

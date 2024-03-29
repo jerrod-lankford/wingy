@@ -10,12 +10,13 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const url = process.env.MONGODB_URI || 'mongodb://localhost:27017/wingy';
-const dbName = url.substr(url.lastIndexOf('/') + 1).split('?')[0];
+const dbName = url.substring(url.lastIndexOf('/') + 1).split('?')[0];
 const PORT = process.env.PORT || 3000;
 const app = express();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const jsonParser = bodyParser.json();
 
+// __dirname polyfill for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

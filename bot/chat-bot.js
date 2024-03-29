@@ -3,9 +3,11 @@ import { WebClient } from '@slack/web-api';
 import { slackBlocks } from '../common/slack-blocks.js';  
 import CONFIG from './configuration.json' assert { type: "json" };
 import { uploadImage } from './utils.js';
+import { ESTIMATED_DELIVERY_SELECTOR } from './wo-selectors.js';
 
-const ESTIMATED_DELIVERY_SELECTOR = 'div.purchase-confirmation [data-value="title1_accentDark"]';
-
+/**
+ * Class responsible for interacting with the Slack API
+ */
 export class ChatBot {
   constructor() {
     this.web = new WebClient(secret.slack_token);

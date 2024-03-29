@@ -30,17 +30,6 @@ async function jsonAction(url, body, method = 'POST') {
   }
 }
 
-// Fry calculation, 2 people to a large, 1 gets a small
-export function fryCalc(numPeople) {
-  const large = Math.floor(numPeople / 2);
-  const small = numPeople % 2;
-
-  return {
-    large,
-    small
-  };
-};
-
 export async function getOrders(thread_ts) {
   const url = ORDER_URL.replace(':thread', thread_ts);
   const response = await fetch(url);

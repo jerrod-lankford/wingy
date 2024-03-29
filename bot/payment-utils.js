@@ -1,9 +1,8 @@
-import * as utils from './utils.js';
+import { fryCalc } from './order-utils.js';
+import { SIDES, TIP_PERCENT, DELIVERY } from '../common/menu-items.js';
 
-const SMALL_FRY = 2.99;
-const LARGE_FRY = 3.99;
-const TIP_PERCENT = 0.15; // Hardcoded 15% tip, also hardcoded in order utils
-const DELIVERY = 3.50; // inflations a bitch
+const SMALL_FRY = SIDES.Fries['Regular Fries'];
+const LARGE_FRY = SIDES.Fries['Large Fries'];
 
 export function generatePayment(everyone, totalTax, isDelivery) {
   const subTotal = calcSubTotal(everyone);
@@ -39,7 +38,7 @@ function calcFries(everyone, person) {
   const fryPeeps = everyone.reduce((accum, curr) => {
     return curr.fries === 'Yes' ? ++accum : accum;
   }, 0);
-  const fries = utils.fryCalc(fryPeeps);
+  const fries = fryCalc(fryPeeps);
   const total = fries.small * SMALL_FRY + fries.large * LARGE_FRY;
   let pp = 0;
 

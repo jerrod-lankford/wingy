@@ -1,12 +1,11 @@
 import * as paymentUtils from './payment-utils.js';
-import * as orderUtils from './order-utils.js';
+import * as orderPage from './order-page.js';
 import { ChatBot } from './chat-bot.js';
 import chalk from 'chalk';
 import readlineSync from 'readline-sync';
 import * as utils from './utils.js';
 
 async function main() {
-  // Slackbot client
   const bot = new ChatBot();
 
   const pord = readlineSync.question('1. Delivery (default)\n2. Pickup\n');
@@ -42,23 +41,18 @@ async function main() {
   }
 
   // Order  
-  const page = await orderUtils.order(everyone, delivery);
-
-  await orderUtils.logIn(page);
-
-  await orderUtils.grabReceipt(page, thread_ts);
-
-  const tax = await orderUtils.getTax(page);
-
-  await orderUtils.tip(page);
-
+  const page = await orderPage.order(everyone, delivery);
+  await orderPage.logIn(page);
+  await orderPage.grabReceipt(page);
+  const tax = await orderPage.getTax(page);
+  await orderPage.tip(page);
   const payments = paymentUtils.generatePayment(everyone, tax, delivery);
 
   // Print total for sanity checking
-  console.log(chalk.bgRed('Payments'));
-  console.table(payments);
   let total = 0;
   payments.forEach(p => (total += p.total));
+  console.log(chalk.bgRed('Payments'));
+  console.table(payments);
   console.log(`Total tax: ${tax}`);
   console.log(chalk.bgRed(`total: ${total}`));
 
@@ -67,14 +61,12 @@ async function main() {
 
   await bot.atMentionEveryone(everyone);
 
+  // TODO re-enable after we get the right selector
   // await bot.postOrderPreparation(page);
 
   await bot.postPaymentInfo(payments);
-
   await bot.postReceipt();
-
   await utils.clearThread();
-
   await utils.timeout(1000);
 
   const trackerUrl = readlineSync.question('Enter track url:\n');  // Pause until everyone is done ordering
