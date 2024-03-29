@@ -1,10 +1,17 @@
-module.exports.validateOrder = function validateOrder(order) {
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export function validateOrder(order) {
     if (!order || !order.type || !order.price || 
       !order.item || !order.sauces || !order.dressing) {
       return `:x: Please fill in required fields: Order, sauces, and dressing.`;
     }
 
     const size = order.item.split(" ")[0];
+    let text = '';
     switch (order.type) {
        case 'Tenders':
         if ((size === '2' || size === '4') && order.sauces.length > 1) {
@@ -36,7 +43,7 @@ module.exports.validateOrder = function validateOrder(order) {
     return text;
 };
 
-module.exports.validateThread = function(thread) {
+export function validateThread(thread) {
   if (!thread || !thread.active) {
     return  ':x: There is no active order. Perhaps you missed the boat?';
   }
@@ -44,6 +51,6 @@ module.exports.validateThread = function(thread) {
   return null;
 }
 
-module.exports.getReceiptImage = function(thread) {
+export function getReceiptImage(thread) {
   return path.join(__dirname, `../${thread.replace('.','')}-receipt.png`);
 }

@@ -1,6 +1,6 @@
-const MENU = require('./menu-items');
+import * as MENU from "./menu-items.js";
 
-const ACTIONS = {
+export const ACTIONS = {
   SIZE: "size",
   SAUCES: "sauces",
   DRESSING: "dressing",
@@ -45,9 +45,8 @@ function generate(items) {
   });
 };
 
-module.exports.ACTIONS = ACTIONS;
 
-module.exports.slackBlocks = [
+export const slackBlocks = [
   {
     type: "image",
     block_id: "zQvI",

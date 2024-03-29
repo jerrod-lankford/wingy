@@ -1,5 +1,5 @@
-const { generatePayment } = require('../payment-utils');
-const orders = require('./mockOrders.json');
+import { generatePayment } from '../payment-utils.js';
+import orders from './mockOrders.json';
 
 describe('generate payment for delivery', (everyone) => {
     it.each([

@@ -1,9 +1,9 @@
-const paymentUtils = require('./payment-utils.js');
-const orderUtils = require('./order-utils.js');
-const { ChatBot } = require('./chat-bot.js');
-const chalk = require('chalk');
-const readlineSync = require('readline-sync');
-const utils = require('./utils.js');
+import * as paymentUtils from './payment-utils.js';
+import * as orderUtils from './order-utils.js';
+import { ChatBot } from './chat-bot.js';
+import chalk from 'chalk';
+import readlineSync from 'readline-sync';
+import * as utils from './utils.js';
 
 async function main() {
   // Slackbot client

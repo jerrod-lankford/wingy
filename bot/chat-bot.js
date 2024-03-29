@@ -1,12 +1,12 @@
-const secret = require('./secret.json');
-const { WebClient } = require('@slack/web-api');
-const { slackBlocks } = require('../common/slack-blocks.js');
-const CONFIG = require('./configuration.json');
-const { uploadImage } = require('./utils.js');
+import secret from './secret.json' assert { type: "json" };
+import { WebClient } from '@slack/web-api';
+import { slackBlocks } from '../common/slack-blocks.js';  
+import CONFIG from './configuration.json' assert { type: "json" };
+import { uploadImage } from './utils.js';
 
 const ESTIMATED_DELIVERY_SELECTOR = 'div.purchase-confirmation [data-value="title1_accentDark"]';
 
-module.exports.ChatBot = class ChatBot {
+export class ChatBot {
   constructor() {
     this.web = new WebClient(secret.slack_token);
   }

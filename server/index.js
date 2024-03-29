@@ -1,12 +1,13 @@
-const express = require('express');
-const request = require('request');
-const bodyParser = require('body-parser');
-const MongoClient = require('mongodb').MongoClient;
-const { ACTIONS } = require('../common/slack-blocks.js');
-const { validateOrder, validateThread, getReceiptImage } = require('./order-utils');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+import express from 'express';
+import fetch from 'node-fetch';
+import bodyParser from 'body-parser';
+import { MongoClient } from 'mongodb';
+import { ACTIONS } from '../common/slack-blocks.js';
+import { validateOrder, validateThread, getReceiptImage } from './order-utils.js';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 const url = process.env.MONGODB_URI || 'mongodb://localhost:27017/wingy';
 const dbName = url.substr(url.lastIndexOf('/') + 1).split('?')[0];
@@ -15,9 +16,18 @@ const app = express();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const jsonParser = bodyParser.json();
 
-// Collections
-let orders, threads;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+// Create collections and start the server
+const client = new MongoClient(url);
+const db = client.db(dbName);
+const threads = db.collection('threads');
+const orders = db.collection('orders');
+app.listen(PORT);
+console.log(`Server running on port ${PORT}`);
+
+// Collections
 const upload = multer({
   dest: __dirname
 });
@@ -60,7 +70,7 @@ app.post('/api/threads', jsonParser, (req, res) => {
   });
 });
 
-app.put('/api/threads/:thread', jsonParser, (req, res) => {
+app.patch('/api/threads/:thread', jsonParser, (req, res) => {
   const { thread } = req.params;
   const { active } = req.body;
   const result = threads.updateOne({ slack_id: thread }, { $set: { active } });
@@ -115,21 +125,6 @@ app.get('/api/threads/:thread/receipt.png', (req, res) => {
   res.sendFile(getReceiptImage(thread));
 });
 
-let dbo;
-
-// Create collections and start the server
-connect().then(result => {
-  dbo = result;
-  return getOrCreateCollection(dbo, 'orders');
-}).then(collection => {
-  orders = collection;
-  return getOrCreateCollection(dbo, 'threads')
-}).then(collection => {
-  threads = collection;
-  console.log(`Listening on ${PORT}...`);
-  app.listen(PORT);
-});
-
 /**** Helper functions ******/
 async function parseAction(payload) {
   const user = payload.user;
@@ -169,7 +164,7 @@ async function parseAction(payload) {
   await updateOrder(order);
 
   if (text) {
-    sendMessage(payload.response_url, text);
+    await sendMessage(payload.response_url, text);
   }
 }
 
@@ -234,46 +229,20 @@ function parseMultiselect(action) {
   return action.selected_options.map(option => option.value);
 }
 
-function sendMessage(responseURL, text) {
-  var postOptions = {
-    uri: responseURL,
+async function sendMessage(responseURL, text) {
+  const response = await fetch(responseURL, {
     method: 'POST',
     headers: {
       'Content-type': 'application/json'
     },
-    json: {
+    body: JSON.stringify({
       text,
       replace_original: false,
       response_type: 'ephemeral'
-    }
-  };
-  request(postOptions, (error) => {
-    if (error) {
-      console.log(`error sending validation message: ${error}`);
-    }
+    })
   });
-}
 
-function connect() {
-  return new Promise((resolve, reject) => {
-    MongoClient.connect(url, function(err, db) {
-      if (err) reject(err);
-      const dbo = db.db(dbName);
-      resolve(dbo);
-    });
-  });
-}
-
-function getOrCreateCollection(dbo, name) {
-  return new Promise((resolve, reject) => {
-      const collection  = dbo.collection(name);
-      if (collection) {
-        resolve(collection);
-      } else {
-        dbo.createCollection(name, function(err, res) {
-          if (err) reject(err);
-          resolve(res);
-        });
-      }
-  });
+  if (response.status !== 200) {
+    console.error('Error sending message:', response.statusText);
+  }
 }

@@ -1,7 +1,7 @@
-const puppeteer = require('puppeteer');
-const { timeout, fryCalc } = require('./utils');
-const secret = require('./secret.json');
-const configuration = require('./configuration.json');
+import puppeteer from 'puppeteer';
+import { timeout, fryCalc } from './utils.js';
+import secret from './secret.json' assert { type: "json" };
+import configuration from './configuration.json' assert { type: "json" };
 
 const MENU = 'https://order.wingsover.com/';
 
@@ -69,7 +69,7 @@ const HEIGHT = 800;
 
 const WIDTH = 1600;
 
-module.exports.order = async function(everyone, delivery) {
+export async function order(everyone, delivery) {
   const page = await start(delivery);
 
   for (const person of everyone) {
@@ -92,7 +92,7 @@ module.exports.order = async function(everyone, delivery) {
   return page;
 };
 
-module.exports.logIn = async function(page) {
+export async function logIn(page) {
   await waitThenClick(page, CART_SELECTOR);
   await waitThenClick(page, CHECKOUT_SELECTOR);
   await waitThenType(page, EMAIL_SELECTOR, configuration.email);
@@ -101,7 +101,7 @@ module.exports.logIn = async function(page) {
   await waitThenClick(page, CART_LOGIN_2);
 };
 
-module.exports.getTax = async function(page) {
+export async function getTax(page) {
   await waitThenClick(page, PROCEED_TO_PAYMENT_SELECTOR);
   await page.waitForSelector(TAX_SELECTOR, { visible: true });
   const element = await page.waitForSelector(TAX_SELECTOR);
@@ -109,12 +109,12 @@ module.exports.getTax = async function(page) {
   return parseFloat(text.replace('$', ''));
 }
 
-module.exports.tip = async function(page) {
+export async function tip(page) {
     await timeout(2000); // wait for expand animation
     await waitThenClick(page, TIP_SELECTOR);
 }
 
-module.exports.grabReceipt = async function(page, thread) {
+export async function grabReceipt(page, thread) {
   await waitThenClick(page, YOUR_CART_SELECTOR);
   await waitThenClick(page, CART_SELECTOR);
   await timeout(2000); // wait for expand animation

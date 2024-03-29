@@ -1,4 +1,4 @@
-const { fryCalc } = require('../utils');
+import { fryCalc } from '../utils.js';
 
 describe('fry calc', () => {
     it('tests 0 people', () => {

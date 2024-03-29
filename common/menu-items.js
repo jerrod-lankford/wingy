@@ -1,4 +1,4 @@
-module.exports.MAINS = {
+export const MAINS = {
     'Tenders': {
         '2 Tenders': 4.99,
         '4 Tenders': 8.49,
@@ -18,7 +18,7 @@ module.exports.MAINS = {
     }
 };
 
-module.exports.SAUCES = {
+export const SAUCES = {
     'Dry Rubs': [
         'Plain',
         'West Texas Mesquite',
@@ -50,7 +50,7 @@ module.exports.SAUCES = {
     ]
 };
 
-module.exports.DRESSINGS = [
+export const DRESSINGS = [
     'Ranch',
     'Blue Cheese',
     'No Dressing'
