@@ -4,6 +4,10 @@ import secret from './secret.json' assert { type: "json" };
 import configuration from './configuration.json' assert { type: "json" };
 import * as S from './wo-selectors.js';
 import { createFryOrders } from './order-utils.js';
+import { TIP_PERCENT } from '../common/menu-items.js';
+
+const ADDRESS = configuration.address;
+const TIP = TIP_PERCENT * 100;
 
 const HEIGHT = 800;
 const WIDTH = 1600;
@@ -17,8 +21,8 @@ export async function order(everyone, delivery) {
 
   for (const person of everyone) {
     const order = new Order(person, page);
-    await order.size();
     await order.type();
+    await order.item();
     await order.sauces();
     await order.dressing();
     await order.done();
@@ -26,8 +30,8 @@ export async function order(everyone, delivery) {
 
   const fryOrders = createFryOrders(everyone, page);
   for (const fryOrder of fryOrders) {
-    await fryOrder.size();
     await fryOrder.type();
+    await fryOrder.item();
     await fryOrder.sauces();
     await fryOrder.done();
   }
@@ -54,7 +58,7 @@ export async function getTax(page) {
 
 export async function tip(page) {
     await timeout(SHORT_WAIT); // wait for expand animation
-    await waitThenClick(page, S.TIP_SELECTOR);
+    await waitThenClick(page, S.TIP_SELECTOR.replace('{0}', TIP));
 }
 
 export async function grabReceipt(page) {
@@ -97,9 +101,9 @@ async function goToOrderPage(page, delivery) {
   }
   // Stupid website wont show the autocomplete if you type it all at once, so type most of it, then type the last bit with a delay]
   await page.waitForSelector(S.ADDRESS_INPUT_SELECTOR);
-  await page.type(S.ADDRESS_INPUT_SELECTOR, ADDRESS.substr(0, ADDRESS.length-5));
-  await page.type(S.ADDRESS_INPUT_SELECTOR, ADDRESS.substr(ADDRESS.length - 5), { delay: 300 });
-  await waitThenClick(page, S.ADDRESS_SELECT_SELECTOR);
+  await page.type(S.ADDRESS_INPUT_SELECTOR, ADDRESS.substring(0, ADDRESS.length-5));
+  await page.type(S.ADDRESS_INPUT_SELECTOR, ADDRESS.substring(ADDRESS.length - 5), { delay: 300 });
+  await waitThenClick(page, S.ADDRESS_SELECT_SELECTOR.replace('{0}', ADDRESS));
   await waitThenClick(page, S.ADDRESS_ORDER_SELECTOR);
 }
 
@@ -120,27 +124,26 @@ class Order {
     this.page = page;
   }
 
-  async size() {
+  async type() {
+    await waitThenClick(this.page, S.TYPE_SELECTORS[this.person.type]);
+  }
+
+  async item() {
     const selector = S.ORDER_SELECTORS[this.person.item];
     await waitThenClick(this.page, selector);
     await timeout(SHORTER_WAIT);
   }
 
-  async type() {
-    const selector = TYPE_SELECTOR.replace('{0}', this.person.item);
-    await waitThenClick(this.page, selector);
-  }
-
   async sauces() {
     for (const sauce of this.person.sauces) {
-      const selector = ITEM_SELECTOR.replace('{0}', sauce.replace("'", "\\'"));
+      const selector = S.ITEM_SELECTOR.replace('{0}', sauce.replace("'", "\\'"));
       await waitThenClick(this.page, selector);
     }
   }
 
   async dressing() {
     const dressing = this.person.dressing || NO_DRESSING;
-    const selector = ITEM_SELECTOR.replace('{0}', dressing);
+    const selector = S.ITEM_SELECTOR.replace('{0}', dressing);
     await waitThenClick(this.page, selector);
   }
 

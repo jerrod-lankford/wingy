@@ -17,3 +17,4 @@ and placed the order it will calculate the payments and message all participants
 ```
 { "slack_token": <bot oauth token>, "password": <wings over password> }
 ```
+3. Open configuration.json and set all of the appropriate properties

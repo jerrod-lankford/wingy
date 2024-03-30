@@ -33,8 +33,10 @@ async function jsonAction(url, body, method = 'POST') {
 export async function getOrders(thread_ts) {
   const url = ORDER_URL.replace(':thread', thread_ts);
   const response = await fetch(url);
-  if (response.data) {
-    return response.data;
+  const data = await response.json();
+
+  if (data) {
+    return data;
   } else {
     throw new Error('Error making xhr to get orders.');
   }
@@ -63,7 +65,7 @@ export async function createNewThread(thread_ts) {
   await jsonAction(THREAD_URL, { thread: thread_ts });
 }
 
-export async function clearThread(thread) {
+export async function closeThread(thread) {
   fs.unlinkSync(THREAD_FILE);
   await jsonAction(`${THREAD_URL}/${thread}`, {active: false}, 'PATCH');
 };

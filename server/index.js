@@ -50,44 +50,49 @@ app.get('/api/threads/:thread/orders', async (req, res) => {
   res.status(200).send(allOrders).end();
 });
 
-app.delete('/api/threads/:thread/orders', (req, res) => {
+app.delete('/api/threads/:thread/orders', async (req, res) => {
   const { thread } = req.params;
-  const result = orders.deleteMany({ thread });
-  if (!result.writeError) {
+
+  try {
+    await orders.deleteMany({ thread });
     res.status(200).end();
-  } else {
-    res.status(400).send({error: result.writeError.errmsg}).end();
+  } catch (e) {
+    console.error(e);
+    res.status(400).send({error: `Error deleting orders: ${e.errorResponse.errmsg}`});
   }
 });
 
-app.post('/api/threads', jsonParser, (req, res) => {
+app.post('/api/threads', jsonParser, async (req, res) => {
   const { thread } = req.body;
-  threads.insertOne({ slack_id: thread, active: true }, function(err) {
-    if (err) {
-      res.status(400).send({error: result?.writeError?.errmsg}).end();
-    } else {
-      res.status(200).end();
-    }
-  });
+  try {
+    await threads.insertOne({ slack_id: thread, active: true });
+    res.status(200).end();
+  } catch (e) {
+    console.error(e);
+    res.status(400).send({error: `Error creating thread: ${e.errorResponse.errmsg}`});
+  }
 });
 
-app.patch('/api/threads/:thread', jsonParser, (req, res) => {
+app.patch('/api/threads/:thread', jsonParser, async (req, res) => {
   const { thread } = req.params;
   const { active } = req.body;
-  const result = threads.updateOne({ slack_id: thread }, { $set: { active } });
-  if (!result.writeError) {
+
+  try {
+    await threads.updateOne({ slack_id: thread }, { $set: { active } });
     res.status(200).end();
-  } else {
-    res.status(400).send({error: result.writeError.errmsg}).end();
+  } catch (e) {
+    console.error(e);
+    res.status(400).send({error: `Error updating thread: ${e.errorResponse.errmsg}`});
   }
 });
 
-app.delete('/api/threads', (req, res) => {
-  const result = threads.deleteMany({});
-  if (!result.writeError) {
+app.delete('/api/threads', async (req, res) => {
+  try {
+    await threads.deleteMany({});
     res.status(200).end();
-  } else {
-    res.status(400).send({error: result.writeError.errmsg}).end();
+  } catch (e) {
+    console.error(e);
+    res.status(400).send({error: `Error deleting threads: ${e.errorResponse.errmsg}`});
   }
 });
 
@@ -131,6 +136,7 @@ async function parseAction(payload) {
   const user = payload.user;
   const action = payload.actions[0];
   const threadTs = payload.message.ts;
+  debugger;
   const order = await lookupOrCreateOrder(user, threadTs);
 
   let text;
@@ -169,47 +175,34 @@ async function parseAction(payload) {
   }
 }
 
-// Lookup order from mongo or insert a new order
-function lookupOrCreateOrder(user, thread) {
-  return new Promise((resolve, reject) => {
-    orders.findOne({ name: user.username, thread: thread }, function(err, result) {
-      if (err) reject(error);
+// Lookup order from mongo or return a new order to be upserted (does not insert in this method)
+async function lookupOrCreateOrder(user, thread) {
+  const order = await orders.findOne({ name: user.username, thread });
 
-      if (result) {
-        resolve(result);
-      } else {
-        // Create a new order with the given timestamp and user
-        const date = new Date();
-        const order = {
-          name: user.username,
-          user_id: user.id,
-          thread,
-          time: date.toLocaleString()
-        };
+  if (order) {
+    return order;
+  }
 
-        // Insert the new order and return it
-        orders.insertOne(order, function(err, res) {
-          if (err) reject(err);
-          console.log('new order created');
-          resolve(order);
-        });
-      }
-    });
-  });
+  return  {
+    name: user.username,
+    user_id: user.id,
+    thread,
+    time: new Date().toLocaleString()
+  };
 }
 
 // Update order in mongodb
-function updateOrder(order) {
+async function updateOrder(order) {
   delete order._id;
-  return new Promise((resolve, reject) => {
-    var query = { name: order.name };
-    var values = { $set: {...order}};
-    orders.updateOne(query, values, function(err) {
-      if (err) reject(err);
-      console.log('order updated');
-      resolve(true);
-    });
-  });
+  var query = { name: order.name };
+  var values = { $set: {...order}};
+
+  try {
+    await orders.updateOne(query, values, { upsert: true })
+  } catch (e) {
+    console.error('Error updating order');
+    console.error(e);
+  }
 }
 
 // Form return values are Type:Size:Price eg (Tenders:2 Tenders:6.99)

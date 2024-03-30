@@ -1,8 +1,7 @@
 {
   "channelName": "jerrod-test",
-  "refreshInterval": 15000,
   "paymentInfo": "Accepted Payment methods: :paypal: paypal.me/JerrodLankford/{$total} or :venmo: jerrod-lankford",
   "address": "223 South West Street, Raleigh, NC 27603",
   "email": "jerrod.lankford@gmail.com",
-  "baseUrl": "http://localhost:3000"
+  "baseUrl": "https://wingy.herokuapp.com"
 }
