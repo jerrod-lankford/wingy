@@ -22,7 +22,6 @@
     "form-data": "^4.0.0",
     "mongodb": "^6.5.0",
     "multer": "^1.4.5-lts.1",
-    "node-fetch": "^3.3.2",
     "puppeteer": "^22.6.1",
     "readline-sync": "^1.4.10"
   },

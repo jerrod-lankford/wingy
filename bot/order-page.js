@@ -112,7 +112,11 @@ export async function order(everyone, delivery) {
     await pOrder.done();
   }
 
-  const fryOrders = createFryOrders(everyone, page);
+  const fryOrders = createFryOrders(everyone, page).map((fryOrder) => (new Order({
+    type: 'Fries',
+    ...fryOrder,
+  }, page)));
+
   for (const fryOrder of fryOrders) {
     await fryOrder.type();
     await fryOrder.item();

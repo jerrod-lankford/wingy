@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 import express from 'express';
-import fetch from 'node-fetch';
 import bodyParser from 'body-parser';
 import { MongoClient } from 'mongodb';
 import multer from 'multer';

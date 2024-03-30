@@ -33,7 +33,7 @@ export const SAUCES = {
     'Fire 🌶️🌶️🌶️🌶️🌶️',
   ],
   BBQ: [
-    'Citrus Chipotle BBQ🌶️',
+    'Citrus Chipotle BBQ 🌶️',
     'Golden BBQ',
     'Honey BBQ ⭐️',
     'Kickin\' BBQ 🌶️',
@@ -58,8 +58,8 @@ export const DRESSINGS = [
 
 export const SIDES = {
   Fries: {
-    'Regular Fries': 4.49,
-    'Large Fries': 5.49,
+    'Regular Fries': 3.49,
+    'Large Fries': 4.49,
   },
 };
 

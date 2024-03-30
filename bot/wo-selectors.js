@@ -24,6 +24,7 @@ export const TAX_SELECTOR = '::-p-xpath(//span[text()="Tax"]//ancestor::div/span
 export const ESTIMATED_DELIVERY_SELECTOR = 'div.purchase-confirmation [data-value="title1_accentDark"]';
 
 export const TYPE_SELECTORS = {
+  Specials: '.menu-item-0-0 button',
   Tenders: '.menu-item-1-1 button',
   Wings: '.menu-item-2-1 button',
   Fries: '.menu-item-6-2 button',
@@ -34,9 +35,14 @@ export const ORDER_SELECTORS = {
   '4 Tenders': '::-p-xpath(//div[text()="4 Tenders"])',
   '6 Tenders': '::-p-xpath(//div[text()="6 Tenders"])',
   '8 Tenders': '::-p-xpath(//div[text()="8 Tenders"])',
-  '6 Wings': '::p-xpath(//div[text()="6 Wings"])',
+  '6 Wings': '::-p-xpath(//div[text()="6 Wings"])',
   '9 Wings': '::-p-xpath(//div[text()="9 Wings"])',
   '12 Wings': '::-p-xpath(//div[text()="12 Wings"])',
-  'Regular Fries': '::p-xpath(//div[text()="Regular"])',
-  'Large Fries': '::p-xpath(//div[text()="Large"])',
+  'Regular Fries': '::-p-xpath(//button[contains(@aria-label, "Regular")])',
+  'Large Fries': '::-p-xpath(//button[contains(@aria-label, "Large")])',
+  // Cheat a little but madness meals are all the same with different sides, we should add proper meal / side support at some point
+  'Madness Meal /w Fries': '::-p-xpath(//div[contains(text(), "Large Seasoned Waffle Fries")])',
+  'Madness Meal /w GP Fries': '::-p-xpath(//div[contains(text(), "Large Garlic Parm Waffle Fries")])',
+  'Madness Meal /w Tots': '::-p-xpath(//div[contains(text(), "Large Crispy Tots")])',
+  'Madness Meal /w GP Tots': '::-p-xpath(//div[contains(text(), "Large Garlic Parm Tots")])',
 };

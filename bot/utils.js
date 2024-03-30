@@ -1,5 +1,4 @@
 /* eslint-disable no-underscore-dangle */
-import fetch from 'node-fetch';
 import FormData from 'form-data';
 import path from 'path';
 import fs from 'fs';

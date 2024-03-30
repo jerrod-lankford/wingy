@@ -31,17 +31,22 @@ export function validateOrder(order) {
         return `:x: With ${size} ${order.type} you are only allowed to have up to 2 sauces.`;
       }
       break;
+    case 'Specials':
+      if (order.item.includes('Madness Meal') && order.sauces.length > 2) {
+        return ':x: With the Madness Meal you are only allowed to have up to 2 sauces.';
+      }
+      break;
     default:
       return `:x: Order type '${order.type}' not recognized.`;
   }
 
   if (order.completed_before) {
     text = `:white_check_mark: Order successfully updated: ${order.item} - ${order.sauces.join(', ')} - ${order.dressing} - ${order.fries
-      || 'No fries!'}`;
+      || 'No'} community fries!`;
     order.complete = true;
   } else {
-    text = `:white_check_mark: Order placed: ${order.item} - ${order.sauces.join(', ')} - ${order.dressing} - ${order.fries || 'No'} fries!\n`
-      + 'If you change your mind you can order again to update your current order.';
+    text = `:white_check_mark: Order placed: ${order.item} - ${order.sauces.join(', ')} - ${order.dressing} - ${order.fries
+    || 'No'} community fries!\nIf you change your mind you can order again to update your current order.`;
     order.complete = true;
     order.completed_before = true;
   }
