@@ -1,0 +1,28 @@
+{
+    "parser": "@babel/eslint-parser",
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "sourceType": "module",
+      "requireConfigFile": false,
+      "babelOptions": {
+        "plugins": [
+          "@babel/plugin-syntax-import-assertions"
+        ]
+      }
+    },
+    "env": {
+        "es2021": true,
+        "node": true,
+        "jest": true,
+        "browser": true
+    },
+    "extends": "airbnb-base",
+    "rules": {
+      "import/extensions": ["off"],
+      "max-len": ["error", { "code": 150 }],
+      "no-restricted-syntax": ["off"],
+      "no-await-in-loop": ["off"],
+      "no-plusplus": ["off"],
+      "no-console": ["off"]
+    }
+}

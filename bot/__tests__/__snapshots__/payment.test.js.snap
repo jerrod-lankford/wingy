@@ -10,7 +10,7 @@ Array [
     "tax": 0.44731296101159107,
     "tip": 1.9102499999999998,
     "total": 15.96756296101159,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0.875,
@@ -20,7 +20,7 @@ Array [
     "tax": 0.5526870389884088,
     "tip": 2.3602499999999997,
     "total": 19.52293703898841,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0.875,
@@ -30,7 +30,7 @@ Array [
     "tax": 0.44731296101159107,
     "tip": 1.9102499999999998,
     "total": 15.96756296101159,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0.875,
@@ -40,7 +40,7 @@ Array [
     "tax": 0.5526870389884088,
     "tip": 2.3602499999999997,
     "total": 19.52293703898841,
-    "user_id": undefined,
+    "userId": undefined,
   },
 ]
 `;
@@ -55,7 +55,7 @@ Array [
     "tax": 0.35162590701424346,
     "tip": 1.9626,
     "total": 16.098225907014243,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0.7,
@@ -65,7 +65,7 @@ Array [
     "tax": 0.43224939532383766,
     "tip": 2.4126,
     "total": 19.628849395323837,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0.7,
@@ -75,7 +75,7 @@ Array [
     "tax": 0.35162590701424346,
     "tip": 1.9626,
     "total": 16.098225907014243,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0.7,
@@ -85,7 +85,7 @@ Array [
     "tax": 0.43224939532383766,
     "tip": 2.4126,
     "total": 19.628849395323837,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0.7,
@@ -95,7 +95,7 @@ Array [
     "tax": 0.43224939532383766,
     "tip": 2.4126,
     "total": 19.628849395323837,
-    "user_id": undefined,
+    "userId": undefined,
   },
 ]
 `;
@@ -110,7 +110,7 @@ Array [
     "tax": 0.6837826272999572,
     "tip": 1.9974999999999998,
     "total": 17.16461596063329,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 1.1666666666666667,
@@ -120,7 +120,7 @@ Array [
     "tax": 0.837826272999572,
     "tip": 2.4475,
     "total": 20.768659606332907,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 1.1666666666666667,
@@ -130,7 +130,7 @@ Array [
     "tax": 0.47839109970047067,
     "tip": 1.3975,
     "total": 12.359224433033804,
-    "user_id": undefined,
+    "userId": undefined,
   },
 ]
 `;
@@ -145,7 +145,7 @@ Array [
     "tax": 2,
     "tip": 1.4985,
     "total": 16.988500000000002,
-    "user_id": undefined,
+    "userId": undefined,
   },
 ]
 `;
@@ -160,7 +160,7 @@ Array [
     "tax": 2,
     "tip": 2.172,
     "total": 22.152,
-    "user_id": undefined,
+    "userId": undefined,
   },
 ]
 `;
@@ -175,7 +175,7 @@ Array [
     "tax": 0.5525899912203687,
     "tip": 2.3602499999999997,
     "total": 19.52283999122037,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0.875,
@@ -185,7 +185,7 @@ Array [
     "tax": 0.22791922739244952,
     "tip": 0.9735,
     "total": 8.56641922739245,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0.875,
@@ -195,7 +195,7 @@ Array [
     "tax": 0.5088674275680422,
     "tip": 2.1734999999999998,
     "total": 18.04736742756804,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0.875,
@@ -205,7 +205,7 @@ Array [
     "tax": 0.7106233538191395,
     "tip": 3.03525,
     "total": 24.855873353819142,
-    "user_id": undefined,
+    "userId": undefined,
   },
 ]
 `;
@@ -220,7 +220,7 @@ Array [
     "tax": 0.44731296101159107,
     "tip": 0,
     "total": 13.18231296101159,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0,
@@ -230,7 +230,7 @@ Array [
     "tax": 0.5526870389884088,
     "tip": 0,
     "total": 16.28768703898841,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0,
@@ -240,7 +240,7 @@ Array [
     "tax": 0.44731296101159107,
     "tip": 0,
     "total": 13.18231296101159,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0,
@@ -250,7 +250,7 @@ Array [
     "tax": 0.5526870389884088,
     "tip": 0,
     "total": 16.28768703898841,
-    "user_id": undefined,
+    "userId": undefined,
   },
 ]
 `;
@@ -265,7 +265,7 @@ Array [
     "tax": 0.35162590701424346,
     "tip": 0,
     "total": 13.435625907014243,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0,
@@ -275,7 +275,7 @@ Array [
     "tax": 0.43224939532383766,
     "tip": 0,
     "total": 16.516249395323836,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0,
@@ -285,7 +285,7 @@ Array [
     "tax": 0.35162590701424346,
     "tip": 0,
     "total": 13.435625907014243,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0,
@@ -295,7 +295,7 @@ Array [
     "tax": 0.43224939532383766,
     "tip": 0,
     "total": 16.516249395323836,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0,
@@ -305,7 +305,7 @@ Array [
     "tax": 0.43224939532383766,
     "tip": 0,
     "total": 16.516249395323836,
-    "user_id": undefined,
+    "userId": undefined,
   },
 ]
 `;
@@ -320,7 +320,7 @@ Array [
     "tax": 0.6837826272999572,
     "tip": 0,
     "total": 14.000449293966623,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0,
@@ -330,7 +330,7 @@ Array [
     "tax": 0.837826272999572,
     "tip": 0,
     "total": 17.154492939666238,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0,
@@ -340,7 +340,7 @@ Array [
     "tax": 0.47839109970047067,
     "tip": 0,
     "total": 9.795057766367137,
-    "user_id": undefined,
+    "userId": undefined,
   },
 ]
 `;
@@ -355,7 +355,7 @@ Array [
     "tax": 2,
     "tip": 0,
     "total": 11.99,
-    "user_id": undefined,
+    "userId": undefined,
   },
 ]
 `;
@@ -370,7 +370,7 @@ Array [
     "tax": 2,
     "tip": 0,
     "total": 16.48,
-    "user_id": undefined,
+    "userId": undefined,
   },
 ]
 `;
@@ -385,7 +385,7 @@ Array [
     "tax": 0.5525899912203687,
     "tip": 0,
     "total": 16.28758999122037,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0,
@@ -395,7 +395,7 @@ Array [
     "tax": 0.22791922739244952,
     "tip": 0,
     "total": 6.71791922739245,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0,
@@ -405,7 +405,7 @@ Array [
     "tax": 0.5088674275680422,
     "tip": 0,
     "total": 14.998867427568042,
-    "user_id": undefined,
+    "userId": undefined,
   },
   Object {
     "delivery": 0,
@@ -415,7 +415,7 @@ Array [
     "tax": 0.7106233538191395,
     "tip": 0,
     "total": 20.94562335381914,
-    "user_id": undefined,
+    "userId": undefined,
   },
 ]
 `;
