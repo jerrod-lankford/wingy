@@ -154,5 +154,5 @@ export async function grabReceipt(page) {
   await waitThenClick(page, S.CART_SELECTOR);
   await timeout(SHORT_WAIT); // wait for expand animation
   const receipt = await page.waitForSelector(S.RECEIPT_SELECTOR);
-  await receipt.screenshot({ path: '../receipt.png' });
+  await receipt.screenshot({ path: 'receipt.png' });
 }
