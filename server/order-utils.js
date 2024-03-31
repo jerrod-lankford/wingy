@@ -63,5 +63,7 @@ export function validateThread(thread) {
 }
 
 export function getReceiptImage(thread) {
-  return path.join(__dirname, `../${thread.replace('.', '')}-receipt.png`);
+  const receiptUri = path.join(__dirname, `../${thread.replace('.', '')}-receipt.png`);
+  console.log(`getReceiptImage: ${receiptUri}`);
+  return receiptUri;
 }

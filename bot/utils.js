@@ -73,7 +73,9 @@ export async function closeThread(thread) {
 
 export async function uploadImage(thread) {
   const form = new FormData();
-  form.append('file', fs.createReadStream('receipt.png'));
+  const receiptUri = path.join(__dirname, `../${thread.replace('.', '')}-receipt.png`);
+  console.log(`uploadImage: ${receiptUri}`);
+  form.append('file', fs.createReadStream(receiptUri));
 
   const url = POST_RECEIPT_URL.replace(':thread', thread);
   await fetch(url, {

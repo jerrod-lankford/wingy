@@ -1,4 +1,7 @@
+/* eslint-disable no-underscore-dangle */
 import puppeteer from 'puppeteer';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { timeout } from './utils.js';
 import secret from './secret.json' with { type: 'json' };
 import configuration from './configuration.json' with { type: 'json' };
@@ -13,6 +16,10 @@ const HEIGHT = 800;
 const WIDTH = 1600;
 const SHORT_WAIT = 2000;
 const SHORTER_WAIT = 1000;
+
+// __dirname polyfill for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const MENU = 'https://order.wingsover.com/';
 
@@ -154,5 +161,6 @@ export async function grabReceipt(page) {
   await waitThenClick(page, S.CART_SELECTOR);
   await timeout(SHORT_WAIT); // wait for expand animation
   const receipt = await page.waitForSelector(S.RECEIPT_SELECTOR);
+  const receipetUri = path.join(__dirname, '../receipt.png');
   await receipt.screenshot({ path: 'receipt.png' });
 }
