@@ -25,7 +25,6 @@ const client = new MongoClient(url);
 const db = client.db(dbName);
 const threads = db.collection('threads');
 const orders = db.collection('orders');
-app.use(bodyParser.json());
 app.listen(PORT);
 console.log(`Server running on port ${PORT}`);
 
