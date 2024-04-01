@@ -1,9 +1,14 @@
+/* eslint-disable no-underscore-dangle */
 import { WebClient } from '@slack/web-api';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import secret from './secret.json' with { type: 'json' };
-import { slackBlocks } from '../common/slack-blocks.js';
+import { slackBlocks, orderBlocks } from '../common/slack-blocks.js';
 import CONFIG from './configuration.json' with { type: 'json' };
-import { uploadImage } from './utils.js';
 import { ESTIMATED_DELIVERY_SELECTOR } from './wo-selectors.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /** HELPER METHODS */
 async function postMessage(web, additionalParams) {
@@ -27,8 +32,10 @@ export default class ChatBot {
     this.web = new WebClient(secret.slack_token);
   }
 
-  setThreadTs(threadTs) {
-    this.threadTs = threadTs;
+  resumeThread(slackId, channel, teamId) {
+    this.slackId = slackId;
+    this.channel = channel;
+    this.teamId = teamId;
   }
 
   async postOrderForm() {
@@ -36,27 +43,42 @@ export default class ChatBot {
       text: 'Order up! Lunch thread...',
       blocks: slackBlocks,
     });
-    this.threadTs = result.ts;
-    return result.ts;
+    this.slackId = result.ts;
+    this.channel = result.channel;
+    this.teamId = result.message.team;
+    return { slackId: this.slackId, channel: this.channel, teamId: this.teamId };
   }
 
   async atMentionEveryone(everyone) {
-    const { threadTs } = this;
+    const { slackId } = this;
     const text = everyone.map((e) => `@${e.name}`).join(' ');
-    await postMessage(this.web, { text, thread_ts: threadTs, link_names: true });
+    await postMessage(this.web, { text, thread_ts: slackId, link_names: true });
   }
 
   async postReceipt() {
-    const { threadTs } = this;
-    const receiptUrl = await uploadImage(threadTs);
-    await postMessage(this.web, { text: receiptUrl, thread_ts: threadTs });
+    const { slackId, channel } = this;
+
+    await this.web.files.uploadV2({
+      file: path.join(__dirname, '../receipt.png'),
+      filename: 'receipt.png',
+      thread_ts: slackId,
+      channel_id: channel,
+    });
+  }
+
+  async postOrderInfo(orders) {
+    for (const o of orders) {
+      const response = await this.web.conversations.open({ users: o.userId });
+      const channel = response.channel.id;
+      await postMessage(this.web, { text: 'Order Summary', blocks: orderBlocks(o, this.slackId), channel });
+    }
   }
 
   async postPaymentInfo(payments) {
-    await payments.forEach(async (p) => {
+    for (const p of payments) {
       const response = await this.web.conversations.open({ users: p.userId });
       const channel = response.channel.id;
-      const text = `Hi ${p.name}, you owe *${format(p.total)}*.\n ${CONFIG.paymentInfo.replace('{$total}', p.total.toFixed(2))}
+      const text = `You owe *${format(p.total)}*.\n ${CONFIG.paymentInfo.replace('{$total}', p.total.toFixed(2))}
         *Cost Breakdown*
          Price: ${format(p.price)}
          Fries: ${format(p.fries)}
@@ -64,11 +86,11 @@ export default class ChatBot {
          Tip: ${format(p.tip)}
          Delivery: ${format(p.delivery)}`;
       await postMessage(this.web, { text, channel });
-    });
+    }
   }
 
   async postOrderPreparation(page) {
-    const { threadTs } = this;
+    const { slackId } = this;
     await page.waitForSelector(ESTIMATED_DELIVERY_SELECTOR);
     const text = await page.evaluate((selector) => {
       const estimated = document.querySelector(selector);
@@ -76,12 +98,12 @@ export default class ChatBot {
     }, ESTIMATED_DELIVERY_SELECTOR);
 
     if (text) {
-      await postMessage(this.web, { text: `Estimated Delivery: ${text}`, thread_ts: threadTs });
+      await postMessage(this.web, { text: `Estimated Delivery: ${text}`, thread_ts: slackId });
     }
   }
 
   async postTrackerUrl(url) {
-    const { threadTs } = this;
-    await postMessage(this.web, { text: `:chicken: :wings: tracker: ${url}`, thread_ts: threadTs });
+    const { slackId } = this;
+    await postMessage(this.web, { text: `:chicken: :wings: tracker: ${url}`, thread_ts: slackId });
   }
 }

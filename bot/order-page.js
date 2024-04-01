@@ -1,25 +1,19 @@
-/* eslint-disable no-underscore-dangle */
 import puppeteer from 'puppeteer';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { timeout } from './utils.js';
 import secret from './secret.json' with { type: 'json' };
 import configuration from './configuration.json' with { type: 'json' };
 import * as S from './wo-selectors.js';
 import { createFryOrders } from './order-utils.js';
-import { TIP_PERCENT } from '../common/menu-items.js';
+import { TIP_PERCENT_DELIVERY, TIP_PERCENT_PICKUP } from '../common/menu-items.js';
 
 const ADDRESS = configuration.address;
-const TIP = TIP_PERCENT * 100;
+const TIP_DELIVERY = TIP_PERCENT_DELIVERY * 100;
+const TIP_PICKUP = TIP_PERCENT_PICKUP * 100;
 
 const HEIGHT = 800;
 const WIDTH = 1600;
 const SHORT_WAIT = 2000;
 const SHORTER_WAIT = 1000;
-
-// __dirname polyfill for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const MENU = 'https://order.wingsover.com/';
 
@@ -37,7 +31,7 @@ async function waitThenType(page, selector, text) {
 // Can we inject a cookie instead?
 async function waitAndClosePopup(page) {
   try {
-    const iframePopup = await page.waitForSelector(S.IFRAME_POPUP);
+    const iframePopup = await page.waitForSelector(S.IFRAME_POPUP, { timeout: 5000 });
     const frame = await iframePopup.contentFrame();
     await frame.waitForSelector(S.DIALOG_CONTAINER);
     await frame.click(S.CLOSE_DIALOG_CONTAINER);
@@ -151,9 +145,10 @@ export async function getTax(page) {
   return parseFloat(text.replace('$', ''));
 }
 
-export async function tip(page) {
+export async function tip(page, delivery) {
   await timeout(SHORT_WAIT); // wait for expand animation
-  await waitThenClick(page, S.TIP_SELECTOR.replace('{0}', TIP));
+  const selector = S.TIP_SELECTOR.replace('{0}', delivery ? TIP_DELIVERY : TIP_PICKUP);
+  await waitThenClick(page, selector);
 }
 
 export async function grabReceipt(page) {
@@ -161,6 +156,5 @@ export async function grabReceipt(page) {
   await waitThenClick(page, S.CART_SELECTOR);
   await timeout(SHORT_WAIT); // wait for expand animation
   const receipt = await page.waitForSelector(S.RECEIPT_SELECTOR);
-  const receipetUri = path.join(__dirname, '../receipt.png');
   await receipt.screenshot({ path: 'receipt.png' });
 }

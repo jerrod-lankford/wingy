@@ -12,6 +12,8 @@ and placed the order it will calculate the payments and message all participants
 3. Click bots and add the following oauth scopes: `channels:join, chat:write, chat:write.customize, files:write, im:read, im:write`
 4. Go to Interactivity & Shortcuts, Enable and add the following url `https://wingy.herokuapp.com/slack`
 
+Slack environment also requires the following emojis if you want them to show up: `:venmo: :paypal: :chompy: :chicken: :wings:`
+
 ## Configuration
 
 1. From the above website go to Oauth settings and copy the Bot User Oauth Token
@@ -30,6 +32,12 @@ and placed the order it will calculate the payments and message all participants
 3. `yarn bot`
 
 Yarn bot will ask questions in the terminal and post a slack thread. It saves the thread id to a thread.id file. If at any time the program crashes or you need to stop and restart it will pick up from that thread id file. When the order is finished it should automatically delete this file and close the thread in the database. If it does not delete the file then it can be manually deleted.
+
+## Troubleshooting
+
+Very occasionally you will get a fetch error when continuing the order.
+`code: 'ECONNREFUSED'`
+I don't quite know why but just rerun the bot and it will pick up from where it left off and it should work after that
 
 ## Development
 

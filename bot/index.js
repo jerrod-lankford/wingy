@@ -15,21 +15,22 @@ async function main() {
   console.log('Waking up heroku dyno. This may take a bit...');
 
   await utils.wakeUp();
-  let threadTs = await utils.getCurrentThread();
+  let { slackId, channel, teamId } = await utils.getCurrentThread();
 
-  if (threadTs) {
+  if (slackId) {
     console.log('Resuming previous order.');
-    bot.setThreadTs(threadTs);
+    bot.resumeThread(slackId, channel, teamId);
   } else {
-    threadTs = await bot.postOrderForm();
-    console.log(`Starting a new order with ${threadTs}`);
-    await utils.createNewThread(threadTs);
+    console.log('Starting a new order');
+    // This method sets the thread and channel internally
+    ({ slackId, channel, teamId } = await bot.postOrderForm());
+    await utils.createNewThread(slackId, channel, teamId);
   }
 
   // Pause until everyone is done ordering
   readlineSync.question('Please press enter when all orders are in\n');
 
-  const everyone = await utils.getOrders(threadTs);
+  const everyone = await utils.getOrders(slackId);
 
   // Log Orders
   console.log(chalk.bgRed('Orders'));
@@ -45,7 +46,7 @@ async function main() {
   await orderPage.logIn(page);
   await orderPage.grabReceipt(page);
   const tax = await orderPage.getTax(page);
-  await orderPage.tip(page);
+  await orderPage.tip(page, delivery);
   const payments = paymentUtils.generatePayment(everyone, tax, delivery);
 
   // Print total for sanity checking
@@ -63,10 +64,10 @@ async function main() {
 
   // TODO re-enable after we get the right selector
   // await bot.postOrderPreparation(page);
-
+  await bot.postOrderInfo(everyone);
   await bot.postPaymentInfo(payments);
   await bot.postReceipt();
-  await utils.closeThread(threadTs);
+  await utils.closeThread(slackId);
   await utils.timeout(1000);
 
   const trackerUrl = readlineSync.question('Enter track url:\n'); // Pause until everyone is done ordering

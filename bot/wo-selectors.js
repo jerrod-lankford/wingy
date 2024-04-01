@@ -2,7 +2,7 @@
 export const IFRAME_POPUP = '#attentive_overlay iframe';
 export const DIALOG_CONTAINER = '#page1';
 export const CLOSE_DIALOG_CONTAINER = '#closeIconContainer';
-export const ADDRESS_INPUT_SELECTOR = 'input.input-delivery, input.input-pickup';
+export const ADDRESS_INPUT_SELECTOR = '::-p-xpath(//input[@placeholder="Find your nearest location" or @placeholder="Enter your address"])';
 export const ADDRESS_SELECT_SELECTOR = '::-p-xpath(//span[text()="{0}, USA"])';
 export const ADDRESS_ORDER_SELECTOR = '::-p-xpath(//*[contains(@class,"location-card")]//span[text()="Order"])';
 export const NO_DRESSING = 'No Dressing';

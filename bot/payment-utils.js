@@ -1,6 +1,8 @@
 /* eslint-disable import/prefer-default-export */
 import { fryCalc } from './order-utils.js';
-import { SIDES, TIP_PERCENT, DELIVERY } from '../common/menu-items.js';
+import {
+  SIDES, TIP_PERCENT_DELIVERY, TIP_PERCENT_PICKUP, DELIVERY,
+} from '../common/menu-items.js';
 
 const SMALL_FRY = SIDES.Fries['Regular Fries'];
 const LARGE_FRY = SIDES.Fries['Large Fries'];
@@ -21,8 +23,8 @@ function calcFries(everyone, person) {
   return { total, pp };
 }
 
-function calcTip(price, fries) {
-  return (price + fries) * TIP_PERCENT;
+function calcTip(price, fries, isDelivery) {
+  return (price + fries) * (isDelivery ? TIP_PERCENT_DELIVERY : TIP_PERCENT_PICKUP);
 }
 
 function calcDelivery(numPeople) {
@@ -53,9 +55,8 @@ export function generatePayment(everyone, totalTax, isDelivery) {
     let tip = 0;
     let delivery = 0;
 
+    tip = calcTip(price, fries, isDelivery);
     if (isDelivery) {
-      // Im not being cheap, theres literally no way to tip for pickup
-      tip = calcTip(price, fries);
       delivery = calcDelivery(everyone.length);
     }
     const total = price + fries + tax + tip + delivery;

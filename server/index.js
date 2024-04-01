@@ -1,11 +1,6 @@
-/* eslint-disable no-underscore-dangle */
 import express from 'express';
 import bodyParser from 'body-parser';
 import { MongoClient } from 'mongodb';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import { ACTIONS } from '../common/slack-blocks.js';
 import { validateOrder, validateThread, getReceiptImage } from './order-utils.js';
 
@@ -16,10 +11,6 @@ const app = express();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const jsonParser = bodyParser.json();
 
-// __dirname polyfill for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 // Create collections and start the server
 const client = new MongoClient(url);
 const db = client.db(dbName);
@@ -27,11 +18,6 @@ const threads = db.collection('threads');
 const orders = db.collection('orders');
 app.listen(PORT);
 console.log(`Server running on port ${PORT}`);
-
-// Collections
-const upload = multer({
-  dest: __dirname,
-});
 
 /** Helper functions */
 // Lookup order from mongo or return a new order to be upserted (does not insert in this method)
@@ -46,13 +32,13 @@ async function lookupOrCreateOrder(user, thread) {
     name: user.username,
     userId: user.id,
     thread,
-    time: new Date().toLocaleString(),
+    time: new Date(),
   };
 }
 
 // Update order in mongodb
 async function updateOrder(order) {
-  // eslint-disable-next-line no-param-reassign
+  // eslint-disable-next-line
   delete order._id;
   const query = { name: order.name, thread: order.thread };
   const values = { $set: { ...order } };
@@ -101,14 +87,37 @@ async function sendMessage(responseURL, text) {
   }
 }
 
+async function parseReorderAction(order, previousSlackId, userId) {
+  // Find the previous order based on the slack id from the reorder button
+  const previousOrder = await orders.findOne({ thread: previousSlackId, userId });
+  if (!previousOrder) {
+    return null;
+  }
+
+  return {
+    ...previousOrder,
+    thread: order.thread,
+    time: new Date(),
+    complete: true,
+    completed_before: true,
+  };
+}
+
 async function parseAction(payload) {
   const { user } = payload;
   const action = payload.actions[0];
-  const threadTs = payload.message.ts;
+  const teamId = payload.team.id;
 
-  const order = await lookupOrCreateOrder(user, threadTs);
+  // We have to look up the thread id because theres no guarantee that all of the actions come from the thread anymore, ie Reorder
+  const thread = await threads.findOne({ teamId, active: true });
+  let text = validateThread(thread);
+  if (text) {
+    await sendMessage(payload.response_url, text);
+    return;
+  }
 
-  let text;
+  let order = await lookupOrCreateOrder(user, thread.slackId);
+
   // In case it was complete before, any action will cause it to be uncompleted
   if (order.complete) {
     order.complete = false;
@@ -128,14 +137,19 @@ async function parseAction(payload) {
     case ACTIONS.FRIES:
       order.fries = parseSelect(action);
       break;
-    case ACTIONS.ORDER: {
-      const thread = await threads.findOne({ slack_id: threadTs });
-      text = validateThread(thread);
+    case ACTIONS.ORDER:
       text = text || validateOrder(order);
       break;
-    }
+    case ACTIONS.REORDER:
+      order = await parseReorderAction(order, action.value, user.id);
+      if (!order) {
+        text = ':x: No previous order found to reorder.';
+      } else {
+        text = ':white_check_mark: Reorder successfully placed.';
+      }
+      break;
     default:
-      throw new Error(`Unknown action id ${action}`);
+      console.error(`Unknown action id ${action}`);
   }
 
   await updateOrder(order);
@@ -156,18 +170,18 @@ app.post('/slack', urlencodedParser, async (req, res) => {
   res.status(200).end();
 });
 
-app.get('/api/threads/:thread/orders', async (req, res) => {
-  const { thread } = req.params;
-  const cursor = orders.find({ thread });
+app.get('/api/threads/:slackId/orders', async (req, res) => {
+  const { slackId } = req.params;
+  const cursor = orders.find({ thread: slackId });
   const allOrders = await cursor.toArray();
   res.status(200).send(allOrders).end();
 });
 
-app.delete('/api/threads/:thread/orders', async (req, res) => {
-  const { thread } = req.params;
+app.delete('/api/threads/:slackId/orders', async (req, res) => {
+  const { slackId } = req.params;
 
   try {
-    await orders.deleteMany({ thread });
+    await orders.deleteMany({ thread: slackId });
     res.status(200).end();
   } catch (e) {
     console.error(e);
@@ -176,9 +190,11 @@ app.delete('/api/threads/:thread/orders', async (req, res) => {
 });
 
 app.post('/api/threads', jsonParser, async (req, res) => {
-  const { thread } = req.body;
+  const { slackId, channel, teamId } = req.body;
   try {
-    await threads.insertOne({ slack_id: thread, active: true });
+    await threads.insertOne({
+      slackId, channel, teamId, active: true,
+    });
     res.status(200).end();
   } catch (e) {
     console.error(e);
@@ -186,12 +202,23 @@ app.post('/api/threads', jsonParser, async (req, res) => {
   }
 });
 
-app.patch('/api/threads/:thread', jsonParser, async (req, res) => {
-  const { thread } = req.params;
+app.get('/api/threads/:slackId', async (req, res) => {
+  const { slackId } = req.params;
+  const threadInfo = await threads.findOne({ slackId });
+
+  if (threadInfo) {
+    res.status(200).send(threadInfo).end();
+  } else {
+    res.status(404).send({ error: 'Thread not found' });
+  }
+});
+
+app.patch('/api/threads/:slackId', jsonParser, async (req, res) => {
+  const { slackId } = req.params;
   const { active } = req.body;
 
   try {
-    await threads.updateOne({ slack_id: thread }, { $set: { active } });
+    await threads.updateOne({ slackId }, { $set: { active } });
     res.status(200).end();
   } catch (e) {
     console.error(e);
@@ -209,34 +236,7 @@ app.delete('/api/threads', async (req, res) => {
   }
 });
 
-// TODO the heroku filesystem is ephemeral, so this will not last forever, find a more persistance way to store receipt images
-app.post(
-  '/api/threads/:thread/receipt',
-  upload.single('file'),
-  (req, res) => {
-    const { thread } = req.params;
-    const tempPath = req.file.path;
-    const targetPath = getReceiptImage(thread);
-
-    if (path.extname(req.file.originalname).toLowerCase() === '.png') {
-      fs.rename(tempPath, targetPath, () => {
-        res
-          .status(200)
-          .contentType('text/plain')
-          .end('File uploaded!');
-      });
-    } else {
-      fs.unlink(tempPath, () => {
-        res
-          .status(403)
-          .contentType('text/plain')
-          .end('Only .png files are allowed!');
-      });
-    }
-  },
-);
-
-app.get('/api/threads/:thread/receipt.png', (req, res) => {
-  const { thread } = req.params;
-  res.sendFile(getReceiptImage(thread));
+app.get('/api/threads/:slackId/receipt.png', (req, res) => {
+  const { slackId } = req.params;
+  res.sendFile(getReceiptImage(slackId));
 });

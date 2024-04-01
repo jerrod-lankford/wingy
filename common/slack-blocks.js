@@ -6,6 +6,7 @@ export const ACTIONS = {
   DRESSING: 'dressing',
   FRIES: 'fries',
   ORDER: 'order',
+  REORDER: 'reorder',
 };
 
 // Generate options for the dropdowns
@@ -202,3 +203,41 @@ export const slackBlocks = [
     },
   },
 ];
+
+/**
+ * Generate the blockKit for the order summary, including a reorder button
+ * The reorder button has a value of the slackId so thats how it identifies the current order
+ */
+export function orderBlocks(order, slackId) {
+  const orderText = '*Order Summary*\n'
+    + `*Item:* ${order.item}\n`
+    + `*Sauces:* ${order.sauces.join(', ')}\n`
+    + `*Dressing:* ${order.dressing}\n`
+    + `*Fries:* ${order.fries === 'Yes' ? ':white_check_mark:' : ':x:'}`;
+
+  return [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: orderText,
+      },
+    },
+    {
+      type: 'actions',
+      elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'Reorder',
+            emoji: true,
+          },
+          style: 'primary',
+          value: slackId,
+          action_id: ACTIONS.REORDER,
+        },
+      ],
+    },
+  ];
+}

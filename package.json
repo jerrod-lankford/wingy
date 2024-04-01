@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node ./server/index.js",
     "debug": "node --inspect ./server/index.js",
+    "clean": "rm thread.id",
     "bot": "node ./bot/index.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
@@ -19,9 +20,7 @@
     "chalk": "^5.3.0",
     "eslint": "^7.32.0 || ^8.2.0",
     "express": "^4.19.2",
-    "form-data": "^4.0.0",
     "mongodb": "^6.5.0",
-    "multer": "^1.4.3",
     "puppeteer": "^22.6.1",
     "readline-sync": "^1.4.10"
   },

@@ -62,6 +62,6 @@ export function validateThread(thread) {
   return null;
 }
 
-export function getReceiptImage(thread) {
-  return path.join(__dirname, `../${thread.replace('.', '')}-receipt.png`);
+export function getReceiptImage(slackId) {
+  return path.join(__dirname, `../${slackId.replace('.', '')}-receipt.png`);
 }

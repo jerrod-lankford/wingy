@@ -65,6 +65,7 @@ export const SIDES = {
 
 export const FRY_RUBS = ['Cajun', 'West Texas Mesquite', 'Lemon Pepper ⭐️', 'Garlic Parm ⭐️'];
 
-// Hardcoded 15% tip
-export const TIP_PERCENT = 0.15;
+// Hardcoded 15% tip for delivery and 10% for pickup
+export const TIP_PERCENT_DELIVERY = 0.15;
+export const TIP_PERCENT_PICKUP = 0.1;
 export const DELIVERY = 3.50;
