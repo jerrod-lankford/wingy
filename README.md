@@ -31,7 +31,7 @@ Slack environment also requires the following emojis if you want them to show up
 2. `yarn install`
 3. `yarn bot`
 
-Yarn bot will ask questions in the terminal and post a slack thread. It saves the thread id to a thread.id file. If at any time the program crashes or you need to stop and restart it will pick up from that thread id file. When the order is finished it should automatically delete this file and close the thread in the database. If it does not delete the file then it can be manually deleted.
+Yarn bot will ask questions in the terminal and post a slack thread. It saves the thread id to a thread.id file. If at any time the program crashes or you need to stop and restart it will pick up from that thread id file. When the order is finished it should automatically delete this file and close the thread in the database. If it does not delete the file then don't manually delete it, it needs to mark the thread as closed in the database. Instead you can run `yarn clean`
 
 ## Troubleshooting
 

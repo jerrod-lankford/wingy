@@ -25,6 +25,7 @@ export const SAUCES = {
     'Cajun',
     'Garlic Parm ⭐️',
     'Lemon Pepper ⭐️',
+    'Big Dill (Limited Time)',
   ],
   Buffalo: [
     'Mild 🌶️',

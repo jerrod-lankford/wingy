@@ -31,7 +31,7 @@ async function waitThenType(page, selector, text) {
 // Can we inject a cookie instead?
 async function waitAndClosePopup(page) {
   try {
-    const iframePopup = await page.waitForSelector(S.IFRAME_POPUP, { timeout: 5000 });
+    const iframePopup = await page.waitForSelector(S.IFRAME_POPUP, { timeout: 5000, visible: true });
     const frame = await iframePopup.contentFrame();
     await frame.waitForSelector(S.DIALOG_CONTAINER);
     await frame.click(S.CLOSE_DIALOG_CONTAINER);
