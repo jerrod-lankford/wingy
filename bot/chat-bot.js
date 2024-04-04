@@ -78,13 +78,13 @@ export default class ChatBot {
     for (const p of payments) {
       const response = await this.web.conversations.open({ users: p.userId });
       const channel = response.channel.id;
-      const text = `You owe *${format(p.total)}*.\n ${CONFIG.paymentInfo.replaceAll('{$total}', p.total.toFixed(2))}
-        *Cost Breakdown*
-         Price: ${format(p.price)}
-         Fries: ${format(p.fries)}
-         Tax: ${format(p.tax)}
-         Tip: ${format(p.tip)}
-         Delivery: ${format(p.delivery)}`;
+      const text = `You owe *${format(p.total)}*.\n ${CONFIG.paymentInfo.replaceAll('{$total}', p.total.toFixed(2))}\n`
+        + '*Cost Breakdown*\n'
+        + `Price: ${format(p.price)}\n`
+        + `Fries: ${format(p.fries)}\n`
+        + `Tax: ${format(p.tax)}\n`
+        + `Tip: ${format(p.tip)}\n`
+        + `Delivery: ${format(p.delivery)}`;
       await postMessage(this.web, { text, channel });
     }
   }
