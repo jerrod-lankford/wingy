@@ -1,6 +1,6 @@
 {
   "channelName": "jerrod-test",
-  "paymentInfo": "Accepted Payment methods: :paypal: paypal.me/JerrodLankford/{$total} or :venmo: jerrod-lankford",
+  "paymentInfo": "Accepted Payment methods: :paypal: paypal.me/JerrodLankford/{$total} or :venmo: https://venmo.com/jerrod-lankford?txn=pay&amount={$total}&note=%F0%9F%90%94%F0%9F%8D%97",
   "address": "223 South West Street, Raleigh, NC 27603",
   "email": "jerrod.lankford@gmail.com",
   "baseUrl": "https://wingy.herokuapp.com"

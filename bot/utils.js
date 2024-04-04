@@ -30,7 +30,16 @@ async function jsonAction(url, body, method = 'POST') {
 
 export async function getOrders(slackId) {
   const url = ORDER_URL.replace(':slackId', slackId);
-  const response = await fetch(url);
+  let response;
+  try {
+    response = await fetch(url);
+    console.log('Successfully got orders');
+  } catch (e) {
+    console.log('Getting orders failed, retrying...');
+    console.error(e);
+    response = await fetch(url);
+  }
+
   const data = await response.json();
 
   if (data) {

@@ -44,7 +44,6 @@ async function main() {
   // Order
   const page = await orderPage.order(everyone, delivery);
   await orderPage.logIn(page);
-  await orderPage.grabReceipt(page);
   const tax = await orderPage.getTax(page);
   await orderPage.tip(page, delivery);
   const payments = paymentUtils.generatePayment(everyone, tax, delivery);
@@ -62,8 +61,8 @@ async function main() {
 
   await bot.atMentionEveryone(everyone);
 
-  // TODO re-enable after we get the right selector
-  // await bot.postOrderPreparation(page);
+  await orderPage.grabReceipt(page);
+  await bot.postOrderPreparation(page);
   await bot.postOrderInfo(everyone);
   await bot.postPaymentInfo(payments);
   await bot.postReceipt();

@@ -78,7 +78,7 @@ export default class ChatBot {
     for (const p of payments) {
       const response = await this.web.conversations.open({ users: p.userId });
       const channel = response.channel.id;
-      const text = `You owe *${format(p.total)}*.\n ${CONFIG.paymentInfo.replace('{$total}', p.total.toFixed(2))}
+      const text = `You owe *${format(p.total)}*.\n ${CONFIG.paymentInfo.replaceAll('{$total}', p.total.toFixed(2))}
         *Cost Breakdown*
          Price: ${format(p.price)}
          Fries: ${format(p.fries)}
@@ -94,11 +94,11 @@ export default class ChatBot {
     await page.waitForSelector(ESTIMATED_DELIVERY_SELECTOR);
     const text = await page.evaluate((selector) => {
       const estimated = document.querySelector(selector);
-      return estimated && estimated.textContent;
+      return estimated && estimated.textContent.replace('Date:', 'Date: ');
     }, ESTIMATED_DELIVERY_SELECTOR);
 
     if (text) {
-      await postMessage(this.web, { text: `Estimated Delivery: ${text}`, thread_ts: slackId });
+      await postMessage(this.web, { text, thread_ts: slackId });
     }
   }
 

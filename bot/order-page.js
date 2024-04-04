@@ -152,9 +152,11 @@ export async function tip(page, delivery) {
 }
 
 export async function grabReceipt(page) {
-  await waitThenClick(page, S.YOUR_CART_SELECTOR);
-  await waitThenClick(page, S.CART_SELECTOR);
-  await timeout(SHORT_WAIT); // wait for expand animation
-  const receipt = await page.waitForSelector(S.RECEIPT_SELECTOR);
-  await receipt.screenshot({ path: 'receipt.png' });
+  try {
+    const receipt = await page.waitForSelector(S.RECEIPT_SELECTOR);
+    await receipt.screenshot({ path: 'receipt.png' });
+  } catch (e) {
+    console.log('Error saving receipt');
+    console.error(e);
+  }
 }
