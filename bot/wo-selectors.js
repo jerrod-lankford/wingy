@@ -22,7 +22,7 @@ export const TAX_SELECTOR = '::-p-xpath(//span[text()="Tax"]//ancestor::div/span
 export const ESTIMATED_DELIVERY_SELECTOR = '::-p-xpath(//span[contains(text(), "Schedule Date")]/parent::div/parent::div)';
 
 export const TYPE_SELECTORS = {
-  Specials: '.menu-item-0-0 button',
+  // Specials: '.menu-item-0-0 button',
   Tenders: '.menu-item-1-1 button',
   Wings: '.menu-item-2-1 button',
   Fries: '.menu-item-6-2 button',

@@ -10,12 +10,12 @@ export const MAINS = {
     '9 Wings': 13.49,
     '12 Wings': 17.99,
   },
-  Specials: {
-    'Madness Meal /w Fries': 14.99,
-    'Madness Meal /w GP Fries': 14.99,
-    'Madness Meal /w Tots': 14.99,
-    'Madness Meal /w GP Tots': 14.99,
-  },
+  // Specials: {
+  //   'Madness Meal /w Fries': 14.99,
+  //   'Madness Meal /w GP Fries': 14.99,
+  //   'Madness Meal /w Tots': 14.99,
+  //   'Madness Meal /w GP Tots': 14.99,
+  // },
 };
 
 export const SAUCES = {
